@@ -3,7 +3,9 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 // /offline is fetched by the service worker during install, before anyone has
 // signed in, so it has to be reachable without a session.
-const PUBLIC_ROUTES = ['/login', '/auth', '/offline']
+// /install is public on purpose: it is the link you send someone before they
+// have ever signed in.
+const PUBLIC_ROUTES = ['/login', '/auth', '/offline', '/install']
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })

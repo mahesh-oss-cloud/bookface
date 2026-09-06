@@ -75,8 +75,21 @@ Weekly update for the partner — with everything else behind More. Tab targets 
 `viewport-fit=cover` plus `env(safe-area-inset-*)` handles the notch and the
 home indicator rather than letterboxing around them.
 
-To install: open it in Safari or Chrome on the phone, then Share → Add to Home
-Screen (iOS) or the install prompt (Android).
+### /install
+
+One public link to send people: `https://<host>/install`. It is reachable signed
+out, because it is the link you send before anyone has an account.
+
+What it can do depends on the platform, and the difference is a hard limit
+rather than an omission. Chrome on Android fires `beforeinstallprompt` when the
+app is installable; capturing it lets a button open Android's real install
+dialog, so it genuinely is one tap. iOS exposes no such API — Apple gives a page
+no way to trigger Add to Home Screen — so Safari gets the exact three taps
+instead of a button that would do nothing. The page detects which it is on
+(treating a touch-capable "Macintosh" as an iPad, which is how iPadOS reports
+itself), notices when it is already running installed and says so, and on a
+desktop shows a QR built from the request host so it works on a preview
+deployment, production, or a laptop on the LAN without hardcoding a URL.
 
 ### The service worker
 

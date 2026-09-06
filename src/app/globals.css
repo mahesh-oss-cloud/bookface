@@ -304,3 +304,20 @@ input[type="number"] { font-family: var(--mono); font-variant-numeric: tabular-n
   /* Inputs below 16px make iOS Safari zoom on focus. */
   input, select, textarea { font-size: 16px; }
 }
+
+/* ── install page ───────────────────────────────────────── */
+.install-card { max-width: 380px; }
+.install-btn { width: 100%; padding: 12px; font-size: 14px; }
+.install-note { font-size: 11px; color: var(--meta); line-height: 1.7; margin: 10px 0 0; }
+.install-steps {
+  margin: 0; padding-left: 20px; font-size: 12.5px; color: var(--ink-2); line-height: 1.75;
+}
+.install-steps li { margin-bottom: 7px; }
+.install-steps li:last-child { margin-bottom: 0; }
+.qr-pad { display: flex; flex-direction: column; align-items: center; gap: 9px; }
+.qr { width: 168px; height: 168px; }
+.qr svg { display: block; width: 100%; height: 100%; }
+.qr-url { font-family: var(--mono); font-size: 10.5px; color: var(--meta); word-break: break-all;
+          text-align: center; }
+/* On a phone you are already holding the device the QR would send you to. */
+@media (max-width: 720px) { .qr-block { display: none; } }
