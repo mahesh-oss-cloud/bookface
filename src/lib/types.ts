@@ -13,6 +13,24 @@ export interface Company {
   batch_id: string | null
   one_liner: string | null
   website: string | null
+  logo_url: string | null
+  description: string | null
+  sector: string | null
+  location: string | null
+  founded_year: number | null
+  product_url: string | null
+  brand_color: string | null
+}
+
+export type FactSection = 'product' | 'integration' | 'pricing' | 'stack' | 'compliance'
+
+export interface CompanyFact {
+  id: string
+  company_id: string
+  section: FactSection
+  label: string
+  detail: string | null
+  sort_order: number
 }
 
 export interface WeeklyUpdate {

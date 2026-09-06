@@ -5,6 +5,7 @@ import SignOut from './SignOut'
 
 const NAV = [
   { href: '/', label: 'Home' },
+  { href: '/company', label: 'Company' },
   { href: '/forum', label: 'Forum' },
   { href: '/updates', label: 'Weekly update' },
   { href: '/runway', label: 'Runway' },

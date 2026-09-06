@@ -213,3 +213,25 @@ input[type="number"] { font-family: var(--mono); font-variant-numeric: tabular-n
   .phases span { grid-column: span 1; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* ── company profile ────────────────────────────────────── */
+/* The logo is the one place a company's own colour is allowed to appear.
+   Everything around it stays Bookface's palette — this is the accelerator's
+   product with a company inside it, not the company's own site. */
+.co-hd { display: flex; gap: 14px; padding: 14px 12px; align-items: flex-start; }
+.co-logo { flex: none; border-radius: 2px; border: 1px solid var(--rule); object-fit: contain; }
+.co-name { font-size: 19px; margin: 0 0 3px; letter-spacing: -0.01em; }
+.co-line { font-size: 13px; color: var(--ink-2); margin: 0 0 6px; line-height: 1.5; }
+.co-meta { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center;
+           font-size: 11px; color: var(--meta); }
+.co-body {
+  border-top: 1px solid var(--rule-soft); padding: 12px;
+  display: grid; grid-template-columns: minmax(0, 1fr) 200px; gap: 24px; align-items: start;
+}
+.co-desc { margin: 0; font-size: 12px; line-height: 1.75; color: var(--ink-2); max-width: 68ch; }
+/* At-a-glance: label/value pairs on a hairline grid, not a card. */
+.co-glance { display: grid; grid-template-columns: auto 1fr; gap: 0 10px; margin: 0; font-size: 11px; }
+.co-glance dt { color: var(--meta); padding: 3px 0; }
+.co-glance dd { margin: 0; padding: 3px 0; color: var(--ink-2); text-align: right;
+                font-family: var(--mono); font-size: 11px; }
+@media (max-width: 760px) { .co-body { grid-template-columns: minmax(0, 1fr); } }

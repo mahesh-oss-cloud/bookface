@@ -59,6 +59,23 @@ The four founders share one company, Blackbird Finance. The partner belongs to
 no company, which is why the read policies key off `is_partner()` rather than a
 company match.
 
+## The company
+
+All four founders share one company, Blackbird Finance, so all four land on the
+same `/company` profile — the batch's view of what they are building.
+
+`companies` carries the identity (logo, one-liner, description, sector, location,
+founded year). `company_facts` carries everything else as `(section, label,
+detail)` rows in five sections: product, integration, compliance, pricing, stack.
+That is deliberately generic — another company can describe a completely
+different business without a schema change, which matters because the directory
+is meant to hold the rest of the batch.
+
+Writes follow the same rule as weekly updates: `facts_insert_own` and
+`companies_update_own` both require `company_id = my_company_id() AND NOT
+is_partner()`, so a founder edits only their own company and the partner edits
+none. The partner sees a "read only" note rather than a form that would fail.
+
 ## Data
 
 Nothing is seeded but structure: the batch, its twelve weeks, the programme
