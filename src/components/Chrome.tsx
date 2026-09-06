@@ -24,7 +24,7 @@ export default async function Chrome({ current }: { current: string }) {
 
   const { data } = await supabase
     .from('profiles')
-    .select('id, full_name, role, title, company_id')
+    .select('id, full_name, bookface_id, role, title, company_id')
     .eq('id', user.id)
     .single()
 

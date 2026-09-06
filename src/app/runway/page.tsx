@@ -11,7 +11,7 @@ export default async function RunwayPage() {
   if (!user) return null
 
   const { data: profileRow } = await supabase
-    .from('profiles').select('id, full_name, role, title, company_id').eq('id', user.id).single()
+    .from('profiles').select('id, full_name, bookface_id, role, title, company_id').eq('id', user.id).single()
   const profile = profileRow as Profile | null
   const isPartner = profile?.role === 'partner'
 

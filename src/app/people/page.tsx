@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import Chrome from '@/components/Chrome'
 import type { Profile, Company } from '@/lib/types'
+import { displayId } from '@/lib/identity'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,7 +15,7 @@ export default async function PeoplePage() {
   if (!user) return null
 
   const [peopleRes, coRes] = await Promise.all([
-    supabase.from('profiles').select('id, full_name, role, title, company_id').order('role').order('full_name'),
+    supabase.from('profiles').select('id, full_name, bookface_id, role, title, company_id').order('role').order('full_name'),
     supabase.from('companies').select('*'),
   ])
 
@@ -36,6 +37,9 @@ export default async function PeoplePage() {
           <div style={{ color: 'var(--meta)', fontSize: 11, marginTop: 1 }}>
             {p.title}
             {company && <> &middot; {company.name} <span className="batchtag">W26</span></>}
+          </div>
+          <div style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--meta)', marginTop: 2 }}>
+            {displayId(p.bookface_id)}
           </div>
         </span>
       </div>
@@ -65,6 +69,18 @@ export default async function PeoplePage() {
         </div>
 
         <aside>
+          <div className="block">
+            <div className="block-hd"><h2>Bookface IDs</h2></div>
+            <div className="pad" style={{ fontSize: 11, color: 'var(--ink-2)', lineHeight: 1.7 }}>
+              <p style={{ margin: 0 }}>
+                Your ID is issued with your acceptance and is what you sign in with.
+                It is deliberately not your email: batch identity is granted by the
+                programme, and it does not follow you out of a company or change when
+                your address does.
+              </p>
+            </div>
+          </div>
+
           <div className="block">
             <div className="block-hd"><h2>Who can do what</h2></div>
             <div className="pad" style={{ fontSize: 11, color: 'var(--ink-2)', lineHeight: 1.7 }}>

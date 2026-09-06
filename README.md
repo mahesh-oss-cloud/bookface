@@ -37,6 +37,28 @@ npm run dev
 There is no sign-up route. Bookface is invite-only by construction — accounts are
 created directly against the database.
 
+## Signing in
+
+Nobody logs in with an email address. The batch issues a **Bookface ID** on
+acceptance, and that ID is the identity here — you type `saharshkeerthi`, not an
+address. Underneath, Supabase auth is an email/password provider, so the ID is
+expanded to `<id>@w26.bookface.test` before it reaches the auth API. `.test` is
+reserved by RFC 2606 so it can never collide with a real domain, and no mail is
+ever sent to it. That expansion lives in one place, `src/lib/identity.ts`, and
+the domain is never rendered.
+
+| Bookface ID | Name | Title | Access |
+| --- | --- | --- | --- |
+| `saharshkeerthi` | Saharsh Keerthi | CEO | founder |
+| `arhaanrahil` | Arhaan Rahil | CTO | founder |
+| `satwikreddy` | Satwik Reddy | COO | founder |
+| `maheshkumarbal` | Mahesh Kumar Bal | Founder & CFO | founder |
+| `jaredfriedman` | Jared Friedman | Group Partner | partner |
+
+The four founders share one company, Blackbird Finance. The partner belongs to
+no company, which is why the read policies key off `is_partner()` rather than a
+company match.
+
 ## Data
 
 Nothing is seeded but structure: the batch, its twelve weeks, the programme

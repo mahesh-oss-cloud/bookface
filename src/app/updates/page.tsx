@@ -13,7 +13,7 @@ export default async function UpdatesPage() {
   if (!user) return null
 
   const { data: profileRow } = await supabase
-    .from('profiles').select('id, full_name, role, title, company_id').eq('id', user.id).single()
+    .from('profiles').select('id, full_name, bookface_id, role, title, company_id').eq('id', user.id).single()
   const profile = profileRow as Profile | null
 
   // Partners don't file updates; sending them here would be a dead end.

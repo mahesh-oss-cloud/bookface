@@ -1,6 +1,7 @@
 export interface Profile {
   id: string
   full_name: string
+  bookface_id: string | null
   role: 'founder' | 'partner'
   title: string | null
   company_id: string | null

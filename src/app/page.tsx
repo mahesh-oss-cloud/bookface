@@ -15,7 +15,7 @@ export default async function HomePage() {
   if (!user) return null
 
   const [profileRes, batchRes, eventsRes] = await Promise.all([
-    supabase.from('profiles').select('id, full_name, role, title, company_id').eq('id', user.id).single(),
+    supabase.from('profiles').select('id, full_name, bookface_id, role, title, company_id').eq('id', user.id).single(),
     supabase.from('batches').select('*').eq('id', 'W26').single(),
     supabase.from('batch_events').select('*').order('starts_at'),
   ])

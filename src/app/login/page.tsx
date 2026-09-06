@@ -3,10 +3,11 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { authAddress, normalizeId, BATCH_TAG } from '@/lib/identity'
 
 export default function LoginPage() {
   const router = useRouter()
-  const [email, setEmail] = useState('')
+  const [bookfaceId, setBookfaceId] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
@@ -16,13 +17,23 @@ export default function LoginPage() {
     setBusy(true)
     setError('')
 
+    const id = normalizeId(bookfaceId)
+    if (!id) {
+      setError('Enter the Bookface ID you were issued.')
+      setBusy(false)
+      return
+    }
+
     const supabase = createClient()
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email: authAddress(id),
+      password,
+    })
 
     if (authError) {
-      // Don't distinguish "no such account" from "wrong password" — that tells an
-      // outsider which of the four addresses are real.
-      setError('That email and password don’t match an account.')
+      // Don't distinguish "no such ID" from "wrong password" — that tells an
+      // outsider which IDs in the batch are real.
+      setError('That Bookface ID and password don’t match an account.')
       setBusy(false)
       return
     }
@@ -41,11 +52,16 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit}>
           <div className="field">
-            <label htmlFor="email">Email</label>
-            <input
-              id="email" type="email" value={email} required autoComplete="email"
-              onChange={e => setEmail(e.target.value)}
-            />
+            <label htmlFor="bookfaceId">Bookface ID</label>
+            <div className="idfield">
+              <input
+                id="bookfaceId" type="text" value={bookfaceId} required
+                autoComplete="username" autoCapitalize="off" autoCorrect="off"
+                spellCheck={false} placeholder="firstnamelastname"
+                onChange={e => setBookfaceId(e.target.value)}
+              />
+              <span className="idsuffix">@{BATCH_TAG}</span>
+            </div>
           </div>
           <div className="field">
             <label htmlFor="password">Password</label>
@@ -63,8 +79,9 @@ export default function LoginPage() {
         </form>
 
         <p className="login-note">
-          Bookface is for founders in the batch and their group partner. Accounts are
-          created by the partner &mdash; there is no public sign-up.
+          Sign in with the Bookface ID issued to you when you were accepted &mdash; not
+          your email. Bookface is for founders in the batch and their group partner;
+          accounts are created by the partner, and there is no public sign-up.
         </p>
       </div>
     </div>

@@ -30,7 +30,7 @@ export default async function ForumPage() {
 
   const [postsRes, peopleRes, votesRes, commentsRes] = await Promise.all([
     supabase.from('posts').select('*').order('created_at', { ascending: false }),
-    supabase.from('profiles').select('id, full_name, role, title, company_id'),
+    supabase.from('profiles').select('id, full_name, bookface_id, role, title, company_id'),
     supabase.from('post_votes').select('post_id, user_id'),
     supabase.from('post_comments').select('post_id'),
   ])
