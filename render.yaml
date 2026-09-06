@@ -1,0 +1,30 @@
+# Render Blueprint. Point Render at this repo and it configures itself from
+# here — no build command, start command or environment typed into a form.
+#
+# Deliberately a Node web service rather than a static site: src/proxy.ts is
+# what redirects an unauthenticated request to /login, and Next's proxy needs
+# access to the incoming request. A static export cannot run it, so the whole
+# auth boundary would silently disappear.
+services:
+  - type: web
+    name: bookface
+    runtime: node
+    plan: free
+    # Closest region to the founders using it.
+    region: singapore
+    buildCommand: npm ci && npm run build
+    # Next reads PORT from the environment, which Render sets.
+    startCommand: npm start
+    # / redirects to /login when signed out; a health check should hit
+    # something that answers 200 directly rather than following a 307.
+    healthCheckPath: /login
+    autoDeploy: true
+    envVars:
+      # Next 16 requires Node 20+. Pinned so a Render default bump cannot
+      # change the runtime under the app without warning.
+      - key: NODE_VERSION
+        value: "22.22.2"
+      # NEXT_PUBLIC_* are read from the committed .env at build time. Both are
+      # public by design — they ship inside the browser bundle either way — so
+      # there is nothing to add here as a secret. The service-role key is not
+      # used by this app and is not present anywhere in the repo.

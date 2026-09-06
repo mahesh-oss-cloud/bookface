@@ -59,6 +59,25 @@ The four founders share one company, Blackbird Finance. The partner belongs to
 no company, which is why the read policies key off `is_partner()` rather than a
 company match.
 
+## Deploying
+
+`render.yaml` is a Render Blueprint: point Render at this repo and it reads the
+build command, start command, region and Node version from there rather than
+from anything typed into a form.
+
+It is a **Node web service, not a static site**, and that is not a preference.
+`src/proxy.ts` is what redirects an unauthenticated request to /login, and
+Next's proxy needs the incoming request to do it. A static export cannot run it,
+so the auth boundary would quietly disappear while the pages still rendered.
+
+Node is pinned to 22 in both `render.yaml` and `.node-version` — Next 16 needs
+20+, and a host bumping its default should not change the runtime underneath the
+app. `npm start` binds to `PORT`, which Render sets.
+
+Nothing needs to be entered as a secret: both `NEXT_PUBLIC_*` values live in the
+committed `.env` and ship inside the browser bundle regardless. The service-role
+key is not used by this app and is nowhere in the repo.
+
 ## On a phone
 
 Bookface installs to the home screen. `app/manifest.ts` declares `display:
