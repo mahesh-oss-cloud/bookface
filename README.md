@@ -78,6 +78,21 @@ home indicator rather than letterboxing around them.
 To install: open it in Safari or Chrome on the phone, then Share → Add to Home
 Screen (iOS) or the install prompt (Android).
 
+### The service worker
+
+`public/sw.js` exists for installability and a launch that is not a blank
+screen. It caches build output and icons only — never a navigation, never
+anything from Supabase. A cached HTML page is somebody's authenticated view, and
+handing it back later, to a different account on a shared phone or after RLS
+would have refused it, would leak precisely what row-level security exists to
+prevent. Offline shows a static page that says so rather than stale data.
+
+`sw.js` and `manifest.webmanifest` are excluded from the proxy matcher rather
+than merely listed as public routes: registration refuses a worker script that
+arrives via a redirect, and the proxy redirects unauthenticated requests to
+/login. That failure is silent — no error, no install prompt — so the matcher is
+load-bearing.
+
 ## Dates
 
 The batch window is known and Demo Day is fixed; the start date is not agreed
