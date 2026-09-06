@@ -59,6 +59,19 @@ The four founders share one company, Blackbird Finance. The partner belongs to
 no company, which is why the read policies key off `is_partner()` rather than a
 company match.
 
+## Dates
+
+The batch window is known and Demo Day is fixed; the start date is not agreed
+yet. `batches.dates_confirmed` says so, and while it is false the app never
+prints a start date and `weekNumber()` returns 0 rather than counting weeks from
+a placeholder — which is what previously made the home page announce that the
+programme had finished. No week is marked current, nothing is greyed out as
+past, and `batch_events.date_confirmed` renders each provisional entry as TBC.
+Demo Day carries a real date because it is the one date that is real.
+
+Set `dates_confirmed = true` once kickoff is agreed and the whole strip starts
+tracking by itself.
+
 ## The company
 
 All four founders share one company, Blackbird Finance, so all four land on the

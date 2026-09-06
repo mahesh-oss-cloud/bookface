@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import Chrome from '@/components/Chrome'
 import OfficeHours from './OfficeHours'
 import type { Profile, BatchEvent, Company } from '@/lib/types'
-import { type Batch, weekNumber, weekLabel, batchPhase, formatDateTime } from '@/lib/batch'
+import { type Batch, weekNumber, weekLabel, batchPhase, formatDateTime, batchTiming } from '@/lib/batch'
 
 export const dynamic = 'force-dynamic'
 
@@ -36,7 +36,8 @@ export default async function BatchPage() {
   const companies = (coRes.data ?? []) as Company[]
 
   const raw = batch ? weekNumber(batch) : 0
-  const finished = batch ? raw > batch.total_weeks : false
+  const pending = batch ? !batch.dates_confirmed : true
+  const finished = batch ? !pending && raw > batch.total_weeks : false
   const current = batch ? Math.min(Math.max(raw, 1), batch.total_weeks) : 1
 
   return (
@@ -47,15 +48,14 @@ export default async function BatchPage() {
           <div className="block-hd">
             <h2>{batch?.name} — Batch HQ</h2>
             <span className="aside">
-              Kickoff {batch && new Date(batch.starts_on).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-              {' · '}Demo Day {batch && new Date(batch.demo_day_on).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+              {batch && batchTiming(batch)}
               {' · '}{companies.length} {companies.length === 1 ? 'company' : 'companies'}
             </span>
           </div>
           <div className="pad">
             <div className="strip">
               {Array.from({ length: batch?.total_weeks ?? 12 }, (_, i) => i + 1).map(w => (
-                <div key={w} className={`wk ${finished || w < current ? 'done' : ''} ${!finished && w === current ? 'now' : ''}`}>
+                <div key={w} className={`wk ${!pending && (finished || w < current) ? 'done' : ''} ${!pending && !finished && w === current ? 'now' : ''}`}>
                   <div className="n">{String(w).padStart(2, '0')}</div>
                   <div className="l">{weekLabel(w)}</div>
                 </div>
@@ -71,7 +71,13 @@ export default async function BatchPage() {
                 keep filing after Demo Day are the ones who still have the chart a year later.
               </div>
             )}
-            {!finished && (
+            {pending && (
+              <div className="notice notice-info" style={{ marginTop: 12 }}>
+                The batch runs {batch?.window_label ?? 'over twelve weeks'} and Demo Day is fixed.
+                The start date is still being confirmed, so no week is marked current yet.
+              </div>
+            )}
+            {!pending && !finished && (
               <div style={{ fontSize: 11, color: 'var(--meta)', marginTop: 10 }}>
                 Week {current} · {batchPhase(current)}
               </div>
@@ -95,7 +101,9 @@ export default async function BatchPage() {
               ) : events.map(e => (
                 <div className="row" key={e.id}>
                   <span className="when">
-                    {new Date(e.starts_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                    {e.date_confirmed
+                      ? new Date(e.starts_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+                      : <span style={{ color: 'var(--meta)' }}>TBC</span>}
                   </span>
                   <span className="what">
                     <span style={{ fontWeight: e.kind === 'demoday' ? 'bold' : 'normal' }}>{e.title}</span>

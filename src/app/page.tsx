@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import Chrome from '@/components/Chrome'
 import type { Profile, Company, WeeklyUpdate, BatchEvent } from '@/lib/types'
 import {
-  type Batch, weekNumber, batchPhase, weekLabel,
+  type Batch, weekNumber, batchPhase, weekLabel, batchTiming,
   formatDateTime, formatMetric, percentChange,
 } from '@/lib/batch'
 
@@ -25,7 +25,10 @@ export default async function HomePage() {
   const events = (eventsRes.data ?? []) as BatchEvent[]
 
   const week = batch ? weekNumber(batch) : 0
-  const finished = batch ? week > batch.total_weeks : false
+  // Unconfirmed dates mean the batch has neither started nor finished: no week
+  // is current, and nothing is behind us.
+  const pending = batch ? !batch.dates_confirmed : true
+  const finished = batch ? !pending && week > batch.total_weeks : false
   const currentWeek = batch ? Math.min(Math.max(week, 1), batch.total_weeks) : 1
   const isPartner = profile?.role === 'partner'
 
@@ -48,8 +51,11 @@ export default async function HomePage() {
     ? percentChange(Number(latest.metric_value), Number(previous.metric_value))
     : null
 
+  // Filtering by date only means something once the dates are real. While they
+  // are provisional, every stored date is in the past and the filter would empty
+  // the list, so show the programme in its stored order instead.
   const upcoming = events.filter(e => new Date(e.starts_at) >= new Date()).slice(0, 5)
-  const shown = upcoming.length > 0 ? upcoming : events.slice(-5)
+  const shown = pending ? events.slice(0, 5) : upcoming.length > 0 ? upcoming : events.slice(-5)
 
   return (
     <>
@@ -61,7 +67,9 @@ export default async function HomePage() {
             <div className="block-hd">
               <h2>{batch?.name ?? 'Batch'}</h2>
               <span className="aside">
-                {finished
+                {pending
+                  ? batchTiming(batch!)
+                  : finished
                   ? `Programme complete — Demo Day was ${new Date(batch!.demo_day_on).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`
                   : `Week ${currentWeek} of ${batch?.total_weeks ?? 12} · ${batchPhase(currentWeek)}`}
               </span>
@@ -71,7 +79,7 @@ export default async function HomePage() {
                 {Array.from({ length: batch?.total_weeks ?? 12 }, (_, i) => i + 1).map(w => (
                   <div
                     key={w}
-                    className={`wk ${finished || w < currentWeek ? 'done' : ''} ${!finished && w === currentWeek ? 'now' : ''}`}
+                    className={`wk ${!pending && (finished || w < currentWeek) ? 'done' : ''} ${!pending && !finished && w === currentWeek ? 'now' : ''}`}
                   >
                     <div className="n">{String(w).padStart(2, '0')}</div>
                     <div className="l">{weekLabel(w)}</div>
@@ -190,7 +198,11 @@ export default async function HomePage() {
               <div className="empty"><p>Nothing scheduled.</p></div>
             ) : shown.map(e => (
               <div className="row" key={e.id}>
-                <span className="when">{new Date(e.starts_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span>
+                <span className="when">
+                  {e.date_confirmed
+                    ? new Date(e.starts_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+                    : <span style={{ color: 'var(--meta)' }}>TBC</span>}
+                </span>
                 <span className="what">
                   {e.title}
                   {e.kind === 'deadline' && <span className="tag" style={{ marginLeft: 5 }}>due</span>}

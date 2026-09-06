@@ -52,6 +52,8 @@ export interface BatchEvent {
   kind: 'event' | 'dinner' | 'workshop' | 'deadline' | 'demoday'
   starts_at: string
   detail: string | null
+  /** False while the stored date is still a placeholder. Render TBC, not the date. */
+  date_confirmed: boolean
 }
 
 export interface DirectoryCompany {

@@ -4,6 +4,8 @@ export interface Batch {
   starts_on: string
   demo_day_on: string
   total_weeks: number
+  dates_confirmed: boolean
+  window_label: string | null
 }
 
 const DAY = 86_400_000
@@ -12,12 +14,30 @@ const DAY = 86_400_000
  * Which week of the programme a date falls in. Returns 0 before kickoff and a
  * number past total_weeks once the batch has finished — callers decide how to
  * present those, rather than this quietly clamping and lying about the date.
+ *
+ * Returns 0 while the batch's dates are unconfirmed. The stored starts_on is a
+ * placeholder until someone confirms it, and counting weeks from a placeholder
+ * produces a confident, wrong answer — including declaring the programme over.
  */
 export function weekNumber(batch: Batch, when: Date = new Date()): number {
+  if (!batch.dates_confirmed) return 0
   const start = new Date(`${batch.starts_on}T00:00:00Z`).getTime()
   const diff = when.getTime() - start
   if (diff < 0) return 0
   return Math.floor(diff / (7 * DAY)) + 1
+}
+
+/**
+ * How the batch's timing is described. Demo Day is fixed, so it is always
+ * named; the start is only named once it is real.
+ */
+export function batchTiming(batch: Batch): string {
+  const demoDay = new Date(batch.demo_day_on)
+    .toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+  const window = batch.window_label ?? `${batch.total_weeks} weeks`
+  return batch.dates_confirmed
+    ? `${window} · Demo Day ${demoDay}`
+    : `${window} · Demo Day ${demoDay} · start date to be confirmed`
 }
 
 export function batchPhase(week: number): string {
