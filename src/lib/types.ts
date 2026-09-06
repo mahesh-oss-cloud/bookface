@@ -46,3 +46,31 @@ export interface DirectoryCompany {
   website: string | null
   status: string | null
 }
+
+export interface Post {
+  id: string
+  author_id: string
+  kind: 'ask' | 'share' | 'announcement'
+  title: string
+  body: string | null
+  tags: string[]
+  created_at: string
+}
+
+export interface PostComment {
+  id: string
+  post_id: string
+  author_id: string
+  body: string
+  created_at: string
+}
+
+export interface CompanyFinances {
+  company_id: string
+  cash_on_hand: number | null
+  monthly_burn: number | null
+  monthly_revenue: number | null
+  growth_rate_pct: number | null
+  currency: string
+  updated_at: string
+}

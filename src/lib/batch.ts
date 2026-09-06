@@ -64,3 +64,61 @@ export function percentChange(current: number, previous: number): number | null 
   if (previous === 0) return null
   return ((current - previous) / previous) * 100
 }
+
+export interface DefaultAlive {
+  alive: boolean
+  monthsToProfitability: number | null
+  runwayMonths: number | null
+  verdict: string
+}
+
+/**
+ * Paul Graham's default-alive question, which partners ask in office hours:
+ * on your current cash, burn and growth, do you reach profitability before the
+ * money runs out?
+ *
+ * Walks month by month rather than solving in closed form, because revenue
+ * compounds while burn does not, and the crossover is what matters.
+ */
+export function defaultAlive(
+  cash: number,
+  monthlyBurn: number,
+  monthlyRevenue: number,
+  growthRatePct: number,
+): DefaultAlive {
+  if (monthlyBurn <= 0) {
+    return { alive: true, monthsToProfitability: 0, runwayMonths: null, verdict: 'No burn — profitable now.' }
+  }
+  if (cash <= 0) {
+    return { alive: false, monthsToProfitability: null, runwayMonths: 0, verdict: 'No cash left.' }
+  }
+
+  let balance = cash
+  let revenue = monthlyRevenue
+  const growth = growthRatePct / 100
+
+  // 120 months is well past the point where the projection means anything;
+  // it is a stop condition, not a forecast.
+  for (let month = 1; month <= 120; month++) {
+    if (revenue >= monthlyBurn) {
+      return {
+        alive: true,
+        monthsToProfitability: month - 1,
+        runwayMonths: null,
+        verdict: `Default alive — revenue covers burn in ${month - 1} month${month - 1 === 1 ? '' : 's'}.`,
+      }
+    }
+    balance += revenue - monthlyBurn
+    if (balance <= 0) {
+      return {
+        alive: false,
+        monthsToProfitability: null,
+        runwayMonths: month,
+        verdict: `Default dead — ${month} month${month === 1 ? '' : 's'} of runway at this growth rate.`,
+      }
+    }
+    revenue = revenue * (1 + growth)
+  }
+
+  return { alive: false, monthsToProfitability: null, runwayMonths: 120, verdict: 'Profitability is more than ten years out at this growth rate.' }
+}
