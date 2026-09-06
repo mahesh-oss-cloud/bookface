@@ -59,6 +59,25 @@ The four founders share one company, Blackbird Finance. The partner belongs to
 no company, which is why the read policies key off `is_partner()` rather than a
 company match.
 
+## On a phone
+
+Bookface installs to the home screen. `app/manifest.ts` declares `display:
+standalone`, so once installed there is no browser chrome and it behaves like
+any other app on the device; the icons are the same orange Y the header uses,
+because an installed icon that does not match the header is a different app as
+far as the person tapping it is concerned.
+
+The nav is not the desktop nav shrunk down. Eight items in a row at 390px is a
+row of targets nobody can hit, so the phone gets a bottom tab bar within thumb
+reach — Home, Company, Forum, and Weekly update for a founder, Batch in place of
+Weekly update for the partner — with everything else behind More. Tab targets are
+44px minimum, inputs are 16px so iOS Safari does not zoom on focus, and
+`viewport-fit=cover` plus `env(safe-area-inset-*)` handles the notch and the
+home indicator rather than letterboxing around them.
+
+To install: open it in Safari or Chrome on the phone, then Share → Add to Home
+Screen (iOS) or the install prompt (Android).
+
 ## Dates
 
 The batch window is known and Demo Day is fixed; the start date is not agreed

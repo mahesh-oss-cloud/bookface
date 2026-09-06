@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import type { Profile } from '@/lib/types'
 import SignOut from './SignOut'
+import MobileNav from './MobileNav'
 
 const NAV = [
   { href: '/', label: 'Home' },
@@ -51,11 +52,18 @@ export default async function Chrome({ current }: { current: string }) {
         </nav>
         <div className="me">
           <span className="av">{initials(profile?.full_name ?? '?')}</span>
-          <span>{profile?.full_name}</span>
+          <span className="me-name">{profile?.full_name}</span>
           {profile?.role === 'partner' && <span className="rolepill">Partner</span>}
           <SignOut />
         </div>
       </div>
+
+      <MobileNav
+        items={items}
+        current={current}
+        name={profile?.full_name ?? ''}
+        role={profile?.role ?? 'founder'}
+      />
     </header>
   )
 }
