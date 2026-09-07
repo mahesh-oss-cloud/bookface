@@ -205,9 +205,9 @@ export default async function DirectoryPage({
                         : <span className="dc-mark" aria-hidden="true">{c.name.trim().charAt(0).toUpperCase() || '?'}</span>}
                       <div className="dc-main">
                         <h3 className="dc-name">
-                          {c.website
-                            ? <a href={c.website} target="_blank" rel="noreferrer">{c.name}</a>
-                            : c.name}
+                          {/* Inward, to our own profile. Bouncing straight out to the
+                              public listing would defeat the point of the network. */}
+                          <Link href={`/directory/${c.id}`}>{c.name}</Link>
                           {c.batch && <span className="batchtag">{c.batch}</span>}
                           {c.top_company && <span className="toptag">Top</span>}
                           {c.status && c.status !== 'Active' && <span className="rolepill">{c.status}</span>}
@@ -219,9 +219,7 @@ export default async function DirectoryPage({
                           {c.team_size != null && c.team_size > 0 && (
                             <span className="tag">{c.team_size.toLocaleString()} {c.team_size === 1 ? 'person' : 'people'}</span>
                           )}
-                          {c.yc_url && (
-                            <a className="tag" href={c.yc_url} target="_blank" rel="noreferrer">Profile</a>
-                          )}
+                          <Link className="tag" href={`/directory/${c.id}`}>Profile</Link>
                         </div>
                         {founders.length > 0 && (
                           <div className="dc-founders">
@@ -237,9 +235,9 @@ export default async function DirectoryPage({
                                     ? <img className="founder-av" src={f.avatar_url} alt=""
                                            width={20} height={20} loading="lazy" />
                                     : <span className="founder-av" aria-hidden="true">{initials(f.name)}</span>}
-                                  {f.linkedin_url
-                                    ? <a href={f.linkedin_url} target="_blank" rel="noreferrer">{f.name}</a>
-                                    : f.name}
+                                  {/* Plain text here; the profile link lives on the
+                                      company page rather than throwing you offsite. */}
+                                  {f.name}
                                   {f.title && <span className="founder-title">{f.title}</span>}
                                   {accountId === user.id
                                     ? <span className="tag">you</span>

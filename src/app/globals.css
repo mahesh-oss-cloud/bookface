@@ -305,6 +305,48 @@ input[type="number"] { font-family: var(--mono); font-variant-numeric: tabular-n
   border-radius: 2px; padding: 0 4px; white-space: nowrap;
 }
 
+/* ── company profile ────────────────────────────────────── */
+.co-hero { display: flex; gap: 14px; padding: 16px; align-items: flex-start; }
+.co-logo {
+  width: 56px; height: 56px; flex: none; border-radius: 3px;
+  border: 1px solid var(--rule); background: var(--surface);
+  object-fit: contain; padding: 3px;
+}
+.co-logo-fb {
+  display: grid; place-items: center; background: var(--panel);
+  font-size: 24px; font-weight: bold; color: var(--ink-2); padding: 0;
+}
+.co-title {
+  margin: 0; font-size: 20px; line-height: 1.25; font-weight: bold;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.co-liner { margin: 5px 0 0; font-size: 13.5px; color: var(--ink-2); line-height: 1.55; max-width: 62ch; }
+
+.co-founder {
+  display: flex; align-items: center; gap: 11px; padding: 11px 12px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.co-founder:last-child { border-bottom: 0; }
+.co-founder:hover { background: var(--panel-2); }
+.co-face {
+  width: 40px; height: 40px; flex: none; border-radius: 50%;
+  background: var(--panel); border: 1px solid var(--rule); color: var(--meta);
+  font-size: 12px; font-weight: bold; display: grid; place-items: center;
+  object-fit: cover;
+}
+.co-fname { font-size: 13.5px; font-weight: bold; display: flex; align-items: center; gap: 6px; }
+.co-ftitle { font-size: 11.5px; color: var(--meta); margin-top: 1px; }
+.co-flink { font-size: 11px; display: inline-block; margin-top: 3px; }
+
+.co-facts { margin: 0; }
+.co-facts > div {
+  display: flex; justify-content: space-between; gap: 12px;
+  padding: 7px 12px; border-bottom: 1px solid var(--rule-soft); font-size: 12px;
+}
+.co-facts > div:last-child { border-bottom: 0; }
+.co-facts dt { color: var(--meta); flex: none; }
+.co-facts dd { margin: 0; text-align: right; color: var(--ink-2); min-width: 0; }
+
 /* ── resources ──────────────────────────────────────────── */
 .res { display: flex; gap: 11px; padding: 11px 12px; border-bottom: 1px solid var(--rule-soft); }
 .res:last-child { border-bottom: 0; }
