@@ -300,6 +300,81 @@ input[type="number"] { font-family: var(--mono); font-variant-numeric: tabular-n
   border-radius: 2px; padding: 0 4px; white-space: nowrap;
 }
 
+/* ── forum ──────────────────────────────────────────────── */
+.forum-search {
+  display: flex; gap: 6px; padding: 10px 12px; border-bottom: 1px solid var(--rule-soft);
+}
+.forum-search input { flex: 1; }
+.forum-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 6px 12px; border-bottom: 1px solid var(--rule); background: var(--panel-2);
+  font-size: 11px;
+}
+.sorts { display: flex; gap: 10px; }
+.sorts a, .unans { color: var(--meta); text-decoration: none; }
+.sorts a:hover, .unans:hover { color: var(--ink); text-decoration: none; }
+.sorts a.on { color: var(--ink); font-weight: bold; }
+.unans.on { color: var(--orange-dim); font-weight: bold; }
+
+.qrow {
+  display: flex; gap: 10px; padding: 10px 12px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.qrow:last-child { border-bottom: 0; }
+.qrow:hover { background: var(--panel-2); }
+/* Votes and answers read as a column each, the way a question list should:
+   the counts are the first thing worth scanning. */
+.qscore {
+  flex: none; width: 44px; text-align: center; display: flex; flex-direction: column;
+  font-size: 10px; color: var(--meta); line-height: 1.3;
+}
+.qscore strong { font-family: var(--mono); font-size: 13px; color: var(--ink-2); font-weight: bold; }
+.qscore.has strong { color: var(--ink); }
+.qscore.solved {
+  border: 1px solid var(--good); border-radius: 2px; color: var(--good); padding: 1px 0;
+}
+.qscore.solved strong { color: var(--good); }
+.qmain { min-width: 0; flex: 1; }
+.qtitle { font-size: 13px; }
+.qtitle strong { color: var(--ink); }
+.qmeta {
+  display: flex; align-items: center; gap: 5px; flex-wrap: wrap;
+  font-size: 11px; color: var(--meta); margin-top: 3px;
+}
+.topictag {
+  font-size: 10px; font-weight: bold; color: var(--orange-dim);
+  border: 1px solid var(--orange-line); background: var(--orange-wash);
+  padding: 0 5px; border-radius: 2px; text-decoration: none; white-space: nowrap;
+}
+a.topictag:hover { text-decoration: none; background: var(--orange-line); }
+
+.similar {
+  border: 1px solid var(--orange-line); background: var(--orange-wash);
+  border-radius: 2px; padding: 7px 9px; margin-bottom: 10px;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.similar a { font-size: 12px; display: flex; align-items: center; gap: 6px; }
+
+.answer { display: flex; gap: 10px; padding: 11px 12px; border-bottom: 1px solid var(--rule-soft); }
+.answer:last-of-type { border-bottom: 0; }
+.answer.accepted { background: #f4faf5; box-shadow: inset 3px 0 0 var(--good); }
+.answer-side { flex: none; width: 30px; display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.answer-main { min-width: 0; flex: 1; }
+.vote {
+  border: 1px solid var(--rule); background: var(--surface); color: var(--meta);
+  border-radius: 2px; cursor: pointer; line-height: 1; padding: 2px 5px; font-size: 11px;
+}
+.vote:hover { color: var(--orange-dim); border-color: var(--orange-line); }
+.vote.on { color: #fff; background: var(--orange); border-color: var(--orange); }
+.vote:disabled { opacity: 0.5; cursor: not-allowed; }
+.vote-n { font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+.tick { color: var(--good); font-size: 13px; font-weight: bold; }
+.acceptedtag {
+  margin-left: 6px; font-size: 10px; font-weight: bold; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--good);
+  border: 1px solid #c9e2cc; background: #f2f8f3; padding: 0 4px; border-radius: 2px;
+}
+
 /* ── messaging ──────────────────────────────────────────── */
 .msgbtn {
   display: inline-flex; align-items: center; gap: 4px; flex: none;

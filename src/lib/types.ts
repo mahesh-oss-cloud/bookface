@@ -120,6 +120,9 @@ export interface Post {
   body: string | null
   tags: string[]
   created_at: string
+  topic: string | null
+  /** The reply the asker says actually solved it. */
+  accepted_comment_id: string | null
 }
 
 export interface PostComment {

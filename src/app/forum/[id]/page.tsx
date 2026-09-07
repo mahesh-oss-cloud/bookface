@@ -27,6 +27,12 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
   const comments = (commentsRes.data ?? []) as PostComment[]
   const votes = (votesRes.data ?? []) as { user_id: string }[]
 
+  const { data: cvRows } = comments.length
+    ? await supabase.from('comment_votes').select('comment_id, user_id')
+        .in('comment_id', comments.map(c => c.id))
+    : { data: [] }
+  const commentVotes = (cvRows ?? []) as { comment_id: string; user_id: string }[]
+
   return (
     <>
       <Chrome current="/forum" />
@@ -42,6 +48,7 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
             userId={user.id}
             voted={votes.some(v => v.user_id === user.id)}
             voteCount={votes.length}
+            commentVotes={commentVotes}
           />
         </div>
         <aside>
