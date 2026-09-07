@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { authAddress, normalizeId, BATCH_TAG } from '@/lib/identity'
+import ConceptNote from '@/components/ConceptNote'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -85,10 +86,7 @@ export default function LoginPage() {
           your email. Bookface is for founders in the batch and their group partner;
           accounts are created by the partner, and there is no public sign-up.
         </p>
-        <p className="login-note" style={{ marginTop: 0, borderTop: 0, paddingTop: 4 }}>
-          A concept build exploring how Bookface could work &mdash; not the official
-          product, and not affiliated with Y Combinator.
-        </p>
+        <ConceptNote />
       </div>
     </div>
   )
