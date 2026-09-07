@@ -300,6 +300,35 @@ input[type="number"] { font-family: var(--mono); font-variant-numeric: tabular-n
   border-radius: 2px; padding: 0 4px; white-space: nowrap;
 }
 
+/* ── resources ──────────────────────────────────────────── */
+.res { display: flex; gap: 11px; padding: 11px 12px; border-bottom: 1px solid var(--rule-soft); }
+.res:last-child { border-bottom: 0; }
+.res:hover { background: var(--panel-2); }
+.res-mark {
+  width: 28px; height: 28px; flex: none; border-radius: 2px;
+  background: var(--panel); border: 1px solid var(--rule); color: var(--ink-2);
+  font-size: 13px; font-weight: bold; display: grid; place-items: center;
+}
+.res-main { min-width: 0; flex: 1; }
+.res-name {
+  margin: 0; font-size: 13px; font-weight: bold;
+  display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+}
+.res-by { font-size: 11px; font-weight: normal; color: var(--meta); }
+.cost {
+  font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--good); border: 1px solid #c9e2cc; background: #f2f8f3;
+  padding: 0 4px; border-radius: 2px; white-space: nowrap;
+}
+.cost.paid { color: var(--meta); border-color: var(--rule); background: var(--panel); }
+/* The one number worth seeing without clicking — credits, page count, list size. */
+.detail {
+  font-family: var(--mono); font-size: 10px; color: var(--orange-dim);
+  border: 1px solid var(--orange-line); background: var(--orange-wash);
+  padding: 0 5px; border-radius: 2px; white-space: nowrap;
+}
+.block-hd h2 .convo-sub { font-weight: normal; }
+
 /* ── forum ──────────────────────────────────────────────── */
 .forum-search {
   display: flex; gap: 6px; padding: 10px 12px; border-bottom: 1px solid var(--rule-soft);

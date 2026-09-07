@@ -98,6 +98,21 @@ export interface DirectoryFounder {
   avatar_url: string | null
 }
 
+export interface Resource {
+  id: string
+  category: string
+  title: string
+  provider: string | null
+  url: string
+  description: string | null
+  /** The one number or fact worth seeing without clicking through. */
+  detail: string | null
+  cost: 'Free' | 'Free tier' | 'Discounted' | 'Paid' | null
+  region: string
+  tags: string[]
+  sort_order: number
+}
+
 export interface BatchFacet { batch: string; batch_name: string | null; batch_sort: number | null; companies: number }
 export interface NameFacet { industry?: string; region?: string; companies: number }
 

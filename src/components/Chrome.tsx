@@ -13,6 +13,7 @@ const NAV = [
   { href: '/batch', label: 'Batch' },
   { href: '/directory', label: 'Companies' },
   { href: '/people', label: 'People' },
+  { href: '/resources', label: 'Resources' },
   { href: '/messages', label: 'Messages' },
 ]
 
