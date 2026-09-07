@@ -89,6 +89,9 @@ export interface DirectoryFounder {
   title: string | null
   linkedin_url: string | null
   sort_order: number
+  /** Set once this founder holds an account, which is what makes a message to
+      them land in a real inbox rather than waiting for one. */
+  profile_id: string | null
 }
 
 export interface BatchFacet { batch: string; batch_name: string | null; batch_sort: number | null; companies: number }

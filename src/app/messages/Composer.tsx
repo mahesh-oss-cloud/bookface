@@ -55,17 +55,13 @@ export default function Composer({
         onKeyDown={e => {
           if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); send() }
         }}
-        placeholder={recipientFounderId
-          ? `Note about ${recipientName.split(' ')[0]} — saved to your account only`
-          : `Message ${recipientName.split(' ')[0]}`}
+        placeholder={`Message ${recipientName.split(' ')[0]}`}
         maxLength={4000}
       />
       <div className="composer-foot">
-        <span className="hint">
-          {recipientFounderId ? 'Saved to your account — not delivered' : '⌘/Ctrl + Enter sends'}
-        </span>
+        <span className="hint">⌘/Ctrl + Enter sends</span>
         <button className="btn btn-p btn-sm" onClick={send} disabled={busy || !body.trim()}>
-          {busy ? 'Saving…' : recipientFounderId ? 'Save note' : 'Send'}
+          {busy ? 'Sending…' : 'Send'}
         </button>
       </div>
     </div>

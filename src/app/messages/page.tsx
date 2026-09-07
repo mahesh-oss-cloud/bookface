@@ -150,7 +150,6 @@ export default async function MessagesPage({
                     : <span className="dim">{t.sub}</span>}
                 </span>
               </span>
-              {t.founder && <span className="offbook">off</span>}
               {t.unread > 0 && <span className="unread">{t.unread}</span>}
             </Link>
           ))}
@@ -163,10 +162,8 @@ export default async function MessagesPage({
               <div className="empty">
                 <strong>Pick someone on the left</strong>
                 <p>
-                  Messages to someone with a Bookface account reach them and stay
-                  between the two of you. Messages to a founder from the company
-                  directory are kept as your own notes &mdash; they are not sent
-                  anywhere, and the thread will tell you so.
+                  A conversation stays between the two of you. Partners cannot read
+                  it, and neither can anyone else in the batch.
                 </p>
               </div>
             </>
@@ -182,29 +179,13 @@ export default async function MessagesPage({
                 <Link className="aside back" href="/messages">All conversations</Link>
               </div>
 
-              {open.founder ? (
-                // Said plainly and above the composer, because the one thing this
-                // must never do is let someone believe a message went out.
-                <div className="notice notice-info" style={{ margin: 12, borderRadius: 2 }}>
-                  <strong>{open.name.split(' ')[0]} is not on Bookface.</strong>{' '}
-                  Anything you write here is saved to your own account and is not
-                  delivered &mdash; they will never see it and cannot reply.
-                  {open.linkedin && <> To actually reach them, use{' '}
-                    <a href={open.linkedin} target="_blank" rel="noreferrer">their LinkedIn</a>.</>}
-                </div>
-              ) : (
-                <MarkRead ids={unreadIds} />
-              )}
+              <MarkRead ids={unreadIds} />
 
               <div className="thread">
                 {open.items.length === 0 ? (
                   <div className="empty">
                     <strong>Nothing yet</strong>
-                    <p>
-                      {open.founder
-                        ? `Notes you write about ${open.name.split(' ')[0]} will appear here.`
-                        : `This is the start of your conversation with ${open.name.split(' ')[0]}.`}
-                    </p>
+                    <p>This is the start of your conversation with {open.name.split(' ')[0]}.</p>
                   </div>
                 ) : open.items.map(m => {
                   const mine = m.sender_id === user.id
@@ -214,7 +195,6 @@ export default async function MessagesPage({
                         <div className="bubble-who">
                           {mine ? 'You' : byId.get(m.sender_id)?.full_name ?? 'Unknown'}
                           <span className="bubble-when">{fullWhen(m.created_at)}</span>
-                          {open.founder && <span className="undelivered">not delivered</span>}
                         </div>
                         <div className="bubble-body">{m.body}</div>
                       </div>

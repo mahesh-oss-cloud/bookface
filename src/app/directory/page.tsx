@@ -4,7 +4,7 @@ import Chrome from '@/components/Chrome'
 import MessageLink from '@/components/MessageLink'
 import ImportCsv from './ImportCsv'
 import type { Profile, DirectoryCompany, DirectoryFounder, BatchFacet, NameFacet } from '@/lib/types'
-import { matchAccount } from '@/lib/people'
+import { matchAccount, initials } from '@/lib/people'
 
 export const dynamic = 'force-dynamic'
 
@@ -169,9 +169,9 @@ export default async function DirectoryPage({
                 company&rsquo;s own public listing.
               </p>
               <p style={{ margin: 0 }}>
-                A founder&rsquo;s name links to the profile they published. The envelope
-                opens a thread: it reaches them if they are on Bookface, and is kept as
-                your own note if they are not &mdash; the thread says which.
+                A founder&rsquo;s name links to the profile they published, and the
+                envelope opens a conversation with them. A thread stays between the
+                two of you.
               </p>
             </div>
           </div>
@@ -227,18 +227,21 @@ export default async function DirectoryPage({
                           <div className="dc-founders">
                             <span className="eyebrow">Founders</span>
                             {founders.map(f => {
-                              const account = matchAccount(f.name, people)
+                              // profile_id is the authoritative link once a founder
+                              // holds an account; the name match is the fallback.
+                              const accountId = f.profile_id ?? matchAccount(f.name, people)?.id ?? null
                               return (
                                 <span className="founder" key={f.id}>
+                                  <span className="founder-av" aria-hidden="true">{initials(f.name)}</span>
                                   {f.linkedin_url
                                     ? <a href={f.linkedin_url} target="_blank" rel="noreferrer">{f.name}</a>
                                     : f.name}
                                   {f.title && <span className="founder-title">{f.title}</span>}
-                                  {account
-                                    ? account.id === user.id
-                                      ? <span className="tag">you</span>
-                                      : <MessageLink to={account.id} name={f.name} />
-                                    : <MessageLink founder={f.id} name={f.name} />}
+                                  {accountId === user.id
+                                    ? <span className="tag">you</span>
+                                    : accountId
+                                      ? <MessageLink to={accountId} name={f.name} />
+                                      : <MessageLink founder={f.id} name={f.name} />}
                                 </span>
                               )
                             })}

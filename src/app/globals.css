@@ -333,11 +333,12 @@ input[type="number"] { font-family: var(--mono); font-variant-numeric: tabular-n
 .convo-sub { display: block; font-size: 11px; font-weight: normal; color: var(--meta); margin-top: 1px; }
 .back { text-decoration: none; }
 .founder-title { font-size: 10px; color: var(--meta); }
-/* Stamped on every saved-but-undelivered message, so the state stays visible on
-   the message itself and not only in the banner at the top of the thread. */
-.undelivered {
-  font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: bold;
-  color: var(--warn); border: 1px solid var(--orange-line); border-radius: 2px; padding: 0 3px;
+/* The public listing publishes headshots but not as data we can reach, so each
+   founder gets initials — the same visual rhythm, without inventing a face. */
+.founder-av {
+  width: 20px; height: 20px; flex: none; border-radius: 50%;
+  background: var(--panel); border: 1px solid var(--rule); color: var(--meta);
+  font-size: 8px; font-weight: bold; display: grid; place-items: center;
 }
 .unread {
   font-family: var(--mono); font-size: 10px; font-weight: bold; line-height: 16px;
