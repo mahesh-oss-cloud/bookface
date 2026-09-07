@@ -5,6 +5,7 @@ export interface Profile {
   role: 'founder' | 'partner'
   title: string | null
   company_id: string | null
+  avatar_url: string | null
 }
 
 export interface Company {
@@ -92,6 +93,9 @@ export interface DirectoryFounder {
   /** Set once this founder holds an account, which is what makes a message to
       them land in a real inbox rather than waiting for one. */
   profile_id: string | null
+  /** Null until someone supplies a real photo; the UI falls back to initials
+      rather than standing in a face that is not theirs. */
+  avatar_url: string | null
 }
 
 export interface BatchFacet { batch: string; batch_name: string | null; batch_sort: number | null; companies: number }

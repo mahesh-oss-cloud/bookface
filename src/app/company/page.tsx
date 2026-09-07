@@ -22,7 +22,7 @@ export default async function CompanyPage() {
   if (!user) return null
 
   const { data: profileRow } = await supabase
-    .from('profiles').select('id, full_name, bookface_id, role, title, company_id')
+    .from('profiles').select('id, full_name, bookface_id, role, title, company_id, avatar_url')
     .eq('id', user.id).single()
   const profile = profileRow as Profile | null
 
@@ -48,7 +48,7 @@ export default async function CompanyPage() {
 
   const [factsRes, teamRes] = await Promise.all([
     supabase.from('company_facts').select('*').eq('company_id', company.id).order('sort_order'),
-    supabase.from('profiles').select('id, full_name, bookface_id, role, title, company_id')
+    supabase.from('profiles').select('id, full_name, bookface_id, role, title, company_id, avatar_url')
       .eq('company_id', company.id).order('full_name'),
   ])
 

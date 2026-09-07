@@ -49,8 +49,8 @@ export default async function DirectoryPage({
   if (top) query = query.eq('top_company', true)
 
   const [meRes, peopleRes, listRes, batchRes, indRes, regRes] = await Promise.all([
-    supabase.from('profiles').select('id, full_name, bookface_id, role, title, company_id').eq('id', user.id).single(),
-    supabase.from('profiles').select('id, full_name, bookface_id, role, title, company_id'),
+    supabase.from('profiles').select('id, full_name, bookface_id, role, title, company_id, avatar_url').eq('id', user.id).single(),
+    supabase.from('profiles').select('id, full_name, bookface_id, role, title, company_id, avatar_url'),
     query,
     supabase.from('directory_batches').select('*').order('batch_sort', { ascending: false }),
     supabase.from('directory_industries').select('*').order('companies', { ascending: false }),
@@ -232,7 +232,11 @@ export default async function DirectoryPage({
                               const accountId = f.profile_id ?? matchAccount(f.name, people)?.id ?? null
                               return (
                                 <span className="founder" key={f.id}>
-                                  <span className="founder-av" aria-hidden="true">{initials(f.name)}</span>
+                                  {f.avatar_url
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    ? <img className="founder-av" src={f.avatar_url} alt=""
+                                           width={20} height={20} loading="lazy" />
+                                    : <span className="founder-av" aria-hidden="true">{initials(f.name)}</span>}
                                   {f.linkedin_url
                                     ? <a href={f.linkedin_url} target="_blank" rel="noreferrer">{f.name}</a>
                                     : f.name}

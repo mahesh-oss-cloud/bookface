@@ -28,7 +28,7 @@ export default async function Chrome({ current }: { current: string }) {
   const [meRes, unreadRes] = await Promise.all([
     supabase
       .from('profiles')
-      .select('id, full_name, bookface_id, role, title, company_id')
+      .select('id, full_name, bookface_id, role, title, company_id, avatar_url')
       .eq('id', user.id)
       .single(),
     supabase

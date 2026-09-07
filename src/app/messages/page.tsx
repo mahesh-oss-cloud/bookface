@@ -17,7 +17,8 @@ type Thread = {
   items: Message[]
   last: Message | null
   unread: number
-  /** Null for a directory founder — nothing was delivered to them. */
+  /** Set when the thread is addressed to an account directly. A founder thread
+      still reaches a real inbox once that founder's row is linked to one. */
   profileId: string | null
   founder: DirectoryFounder | null
   linkedin: string | null
@@ -37,7 +38,7 @@ export default async function MessagesPage({
   if (!user) return null
 
   const [peopleRes, coRes, msgRes] = await Promise.all([
-    supabase.from('profiles').select('id, full_name, bookface_id, role, title, company_id').order('full_name'),
+    supabase.from('profiles').select('id, full_name, bookface_id, role, title, company_id, avatar_url').order('full_name'),
     supabase.from('companies').select('id, name'),
     // RLS already limits this to messages you sent or received; there is no
     // filter here that a client could remove to widen it.

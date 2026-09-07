@@ -18,7 +18,7 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
   const post = postRow as Post
 
   const [peopleRes, commentsRes, votesRes] = await Promise.all([
-    supabase.from('profiles').select('id, full_name, bookface_id, role, title, company_id'),
+    supabase.from('profiles').select('id, full_name, bookface_id, role, title, company_id, avatar_url'),
     supabase.from('post_comments').select('*').eq('post_id', id).order('created_at'),
     supabase.from('post_votes').select('post_id, user_id').eq('post_id', id),
   ])

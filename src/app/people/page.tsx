@@ -13,7 +13,7 @@ export default async function PeoplePage() {
   if (!user) return null
 
   const [peopleRes, coRes] = await Promise.all([
-    supabase.from('profiles').select('id, full_name, bookface_id, role, title, company_id').order('role').order('full_name'),
+    supabase.from('profiles').select('id, full_name, bookface_id, role, title, company_id, avatar_url').order('role').order('full_name'),
     supabase.from('companies').select('*'),
   ])
 
@@ -26,7 +26,11 @@ export default async function PeoplePage() {
     const company = companies.find(c => c.id === p.company_id)
     return (
       <div className="row" key={p.id}>
-        <span className="av" style={{ width: 32, height: 32, fontSize: 11 }}>{initials(p.full_name)}</span>
+        {p.avatar_url
+          // eslint-disable-next-line @next/next/no-img-element
+          ? <img className="av" src={p.avatar_url} alt="" width={32} height={32}
+                 style={{ width: 32, height: 32, objectFit: 'cover' }} />
+          : <span className="av" style={{ width: 32, height: 32, fontSize: 11 }}>{initials(p.full_name)}</span>}
         <span className="what" style={{ flex: 1 }}>
           <div style={{ fontWeight: 'bold', fontSize: 13 }}>
             {p.full_name}
