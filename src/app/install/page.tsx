@@ -55,9 +55,9 @@ export default async function InstallPage() {
         </div>
 
         <p className="login-note">
-          Bookface is for founders in the Winter 2026 batch and their group partner.
-          Installing it does not sign you in &mdash; you will still need the Bookface ID
-          issued to you.
+          Bookface is a private community for Y Combinator founders and their group
+          partner, within their batch. Installing it does not sign you in &mdash; you
+          will still need the Bookface ID issued to you.
         </p>
       </div>
     </div>
