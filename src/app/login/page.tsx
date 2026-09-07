@@ -85,6 +85,7 @@ export default function LoginPage() {
           Sign in with the Bookface ID issued to you when you were accepted &mdash; not
           your email. Bookface is for founders in the batch and their group partner;
           accounts are created by the partner, and there is no public sign-up.
+          {' '}<a href="/install">Install it on your phone &rarr;</a>
         </p>
         <ConceptNote />
       </div>

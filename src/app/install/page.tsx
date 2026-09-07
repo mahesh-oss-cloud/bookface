@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { headers } from 'next/headers'
 import QRCode from 'qrcode'
 import InstallPrompt from './InstallPrompt'
@@ -37,6 +38,11 @@ export default async function InstallPage() {
           <div className="block-hd"><h2>Add Bookface to your phone</h2></div>
           <div className="pad">
             <InstallPrompt />
+            {/* Installing does not sign you in, so the front door still needs a
+                way through to the login the app asks for on open. */}
+            <Link className="btn install-btn" href="/login" style={{ marginTop: 12, display: 'block', textAlign: 'center' }}>
+              Log in to Bookface
+            </Link>
           </div>
         </div>
 
