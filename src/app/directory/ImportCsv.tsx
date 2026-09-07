@@ -4,7 +4,12 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
-const COLUMNS = ['name', 'batch', 'one_liner', 'industry', 'location', 'team_size', 'website', 'status', 'founders']
+const COLUMNS = ['slug', 'name', 'batch', 'one_liner', 'industry', 'location', 'team_size', 'website', 'status', 'founders']
+
+/** Names are typed by humans and matched against an imported list, so compare letters only. */
+function key(v: string): string {
+  return v.toLowerCase().replace(/[^a-z0-9]/g, '')
+}
 
 /** Minimal RFC-4180 parse: handles quoted fields and embedded commas. */
 function parseCsv(text: string): string[][] {
@@ -71,12 +76,55 @@ export default function ImportCsv() {
     }
 
     const supabase = createClient()
-    const { error: dbError } = await supabase.from('directory_companies').insert(records)
+
+    // The directory already holds every company in the public listing, so a CSV is
+    // almost always filling in fields on rows that exist — founders, most often.
+    // Matching on slug first and name second is what stops that becoming 200
+    // duplicate companies.
+    const { data: existingRows, error: readError } = await supabase
+      .from('directory_companies').select('id, slug, name')
+    if (readError) { setError(readError.message); setBusy(false); return }
+
+    const bySlug = new Map<string, string>()
+    const byName = new Map<string, string[]>()
+    for (const row of existingRows ?? []) {
+      if (row.slug) bySlug.set(key(row.slug), row.id)
+      const k = key(row.name)
+      byName.set(k, [...(byName.get(k) ?? []), row.id])
+    }
+
+    const updates: Record<string, unknown>[] = []
+    const inserts: Record<string, unknown>[] = []
+    const ambiguous: string[] = []
+
+    for (const rec of records) {
+      const slugHit = rec.slug ? bySlug.get(key(String(rec.slug))) : undefined
+      const nameHits = byName.get(key(String(rec.name))) ?? []
+      if (slugHit) updates.push({ ...rec, id: slugHit })
+      else if (nameHits.length === 1) updates.push({ ...rec, id: nameHits[0] })
+      // Two companies share this name and the row carries no slug to tell them
+      // apart. Guessing would write to the wrong company, so it is reported.
+      else if (nameHits.length > 1) ambiguous.push(String(rec.name))
+      else inserts.push(rec)
+    }
+
+    // Upserting on the primary key updates only the columns the CSV supplied;
+    // everything else on the row is left alone.
+    if (updates.length) {
+      const { error: e } = await supabase.from('directory_companies').upsert(updates)
+      if (e) { setError(e.message); setBusy(false); return }
+    }
+    if (inserts.length) {
+      const { error: e } = await supabase.from('directory_companies').insert(inserts)
+      if (e) { setError(e.message); setBusy(false); return }
+    }
 
     setBusy(false)
-    if (dbError) { setError(dbError.message); return }
-
-    setDone(`Imported ${records.length} ${records.length === 1 ? 'company' : 'companies'}.`)
+    const parts = []
+    if (updates.length) parts.push(`updated ${updates.length}`)
+    if (inserts.length) parts.push(`added ${inserts.length}`)
+    if (ambiguous.length) parts.push(`skipped ${ambiguous.length} with a duplicate name (${ambiguous.slice(0, 3).join(', ')}${ambiguous.length > 3 ? '…' : ''})`)
+    setDone(parts.length ? `Done — ${parts.join(', ')}.` : 'Nothing to do.')
     setText('')
     router.refresh()
   }
@@ -96,13 +144,18 @@ export default function ImportCsv() {
           <label htmlFor="csv">Paste CSV</label>
           <textarea
             id="csv" rows={9} value={text} onChange={e => setText(e.target.value)}
-            placeholder={'name,batch,one_liner,industry,location,team_size,website,status,founders\n'}
+            placeholder={'name,founders\nGroww,"Lalit Keshre; Harsh Jain"\n'}
             style={{ fontFamily: 'var(--mono)', fontSize: 12 }}
           />
           <div className="hint">
             First row is the header. Recognised columns: {COLUMNS.join(', ')}. Anything
             else is ignored, and only <code>name</code> is required. Put several
             founders in one <code>founders</code> cell separated by semicolons.
+            <br />
+            A company already in the directory is updated rather than added again,
+            matched on <code>slug</code> if the CSV has one and on <code>name</code>
+            otherwise, and only the columns you include are touched &mdash; so a
+            two-column <code>name,founders</code> file just fills in founders.
           </div>
         </div>
         {error && <div className="notice notice-err" style={{ marginBottom: 10 }}>{error}</div>}
