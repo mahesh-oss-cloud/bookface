@@ -54,12 +54,17 @@ a:hover { text-decoration: underline; }
   max-width: 1180px; margin: 0 auto; padding: 0 16px;
   display: flex; align-items: center; gap: 18px; height: 46px;
 }
-.mark {
-  width: 22px; height: 22px; background: var(--orange); color: #fff;
-  font-weight: bold; font-size: 15px; display: grid; place-items: center;
-  border-radius: 2px; flex: none;
-}
+/* The mark is the Y Combinator logo asset, since this is a Bookface concept. */
+.mark { width: 22px; height: 22px; border-radius: 2px; flex: none; display: block; }
 .wordmark { font-weight: bold; font-size: 15px; letter-spacing: -0.4px; color: var(--ink); margin-right: 6px; }
+/* The YC name in text, next to the product name, so the reference is explicit
+   and not carried by the logo alone. */
+.yctag {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: bold;
+  color: var(--orange-dim); border: 1px solid var(--orange-line); background: var(--orange-wash);
+  padding: 1px 5px; border-radius: 2px; white-space: nowrap;
+}
+.login-hd .mark { width: 30px; height: 30px; }
 .nav { display: flex; gap: 2px; flex: 1; }
 .nav a {
   font-size: 12px; color: var(--ink-2); padding: 14px 10px 12px;

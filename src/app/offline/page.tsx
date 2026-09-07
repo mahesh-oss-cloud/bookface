@@ -10,7 +10,8 @@ export default function OfflinePage() {
     <div className="login">
       <div className="login-card">
         <div className="login-hd">
-          <div className="mark">Y</div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="mark" src="/yc-mark.png" alt="Y Combinator" width={30} height={30} />
           <div className="wordmark">Bookface</div>
         </div>
         <div className="block">

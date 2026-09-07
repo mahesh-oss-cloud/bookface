@@ -51,7 +51,8 @@ export default async function Chrome({ current }: { current: string }) {
   return (
     <header className="bar">
       <div className="bar-in">
-        <div className="mark">Y</div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="mark" src="/yc-mark.png" alt="Y Combinator" width={22} height={22} />
         <div className="wordmark">Bookface</div>
         <nav className="nav">
           {items.map(item => (

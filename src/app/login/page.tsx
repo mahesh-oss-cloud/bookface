@@ -46,8 +46,10 @@ export default function LoginPage() {
     <div className="login">
       <div className="login-card">
         <div className="login-hd">
-          <div className="mark">Y</div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="mark" src="/yc-mark.png" alt="Y Combinator" width={30} height={30} />
           <div className="wordmark">Bookface</div>
+          <span className="yctag">Y Combinator</span>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -82,6 +84,10 @@ export default function LoginPage() {
           Sign in with the Bookface ID issued to you when you were accepted &mdash; not
           your email. Bookface is for founders in the batch and their group partner;
           accounts are created by the partner, and there is no public sign-up.
+        </p>
+        <p className="login-note" style={{ marginTop: 0, borderTop: 0, paddingTop: 4 }}>
+          A concept build exploring how Bookface could work &mdash; not the official
+          product, and not affiliated with Y Combinator.
         </p>
       </div>
     </div>
