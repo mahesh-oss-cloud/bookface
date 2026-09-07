@@ -66,10 +66,24 @@ export interface DirectoryCompany {
   team_size: number | null
   website: string | null
   status: string | null
+  slug: string | null
+  logo_url: string | null
+  yc_url: string | null
+  description: string | null
+  batch_name: string | null
+  batch_sort: number | null
+  subindustry: string | null
+  stage: string | null
+  tags: string[]
+  regions: string[]
+  top_company: boolean
   /** Founder names as published by the accelerator. Public business information,
       not personal data — the same names that appear on a public company page. */
   founders: string[]
 }
+
+export interface BatchFacet { batch: string; batch_name: string | null; batch_sort: number | null; companies: number }
+export interface NameFacet { industry?: string; region?: string; companies: number }
 
 export interface Message {
   id: string

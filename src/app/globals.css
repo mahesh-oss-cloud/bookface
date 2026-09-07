@@ -75,7 +75,7 @@ a:hover { text-decoration: underline; }
 
 .wrap { max-width: 1180px; margin: 0 auto; padding: 16px; }
 .cols { display: grid; grid-template-columns: minmax(0,1fr) 268px; gap: 16px; align-items: start; }
-.cols-dir { display: grid; grid-template-columns: 178px minmax(0,1fr); gap: 16px; align-items: start; }
+.cols-dir { display: grid; grid-template-columns: 196px minmax(0,1fr); gap: 16px; align-items: start; }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
 
 /* ── blocks ─────────────────────────────────────────────── */
@@ -254,11 +254,34 @@ input[type="number"] { font-family: var(--mono); font-variant-numeric: tabular-n
 }
 .dc:last-child { border-bottom: 0; }
 .dc:hover { background: var(--panel-2); }
-.dc-mark {
+.dc-mark, .dc-logo {
   width: 34px; height: 34px; flex: none; border-radius: 2px;
-  background: var(--panel); border: 1px solid var(--rule); color: var(--ink-2);
-  font-size: 15px; font-weight: bold; display: grid; place-items: center;
+  background: var(--panel); border: 1px solid var(--rule);
 }
+.dc-mark { color: var(--ink-2); font-size: 15px; font-weight: bold; display: grid; place-items: center; }
+/* Logos arrive at whatever aspect the company uploaded; contain keeps wordmarks
+   from being squashed into the square. */
+.dc-logo { object-fit: contain; background: var(--surface); padding: 2px; }
+.toptag {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; font-weight: bold;
+  color: #fff; background: var(--orange); border: 1px solid var(--orange);
+  padding: 1px 5px; border-radius: 2px;
+}
+.check { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-2); }
+.check input { width: auto; }
+.pager {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 10px 12px; border-top: 1px solid var(--rule); background: var(--panel-2);
+}
+.pager-at { font-family: var(--mono); font-size: 11px; color: var(--meta); }
+.quick { display: flex; flex-direction: column; }
+.quick a {
+  padding: 7px 12px; font-size: 12px; color: var(--ink);
+  border-bottom: 1px solid var(--rule-soft); text-decoration: none;
+}
+.quick a:last-child { border-bottom: 0; }
+.quick a:hover { background: var(--orange-wash); color: var(--orange-dim); text-decoration: none; }
+.pager [aria-disabled="true"] { opacity: 0.4; pointer-events: none; }
 .dc-main { min-width: 0; flex: 1; }
 .dc-name {
   margin: 0; font-size: 13.5px; font-weight: bold;
