@@ -82,13 +82,24 @@ export interface DirectoryCompany {
   founders: string[]
 }
 
+export interface DirectoryFounder {
+  id: string
+  company_id: string
+  name: string
+  title: string | null
+  linkedin_url: string | null
+  sort_order: number
+}
+
 export interface BatchFacet { batch: string; batch_name: string | null; batch_sort: number | null; companies: number }
 export interface NameFacet { industry?: string; region?: string; companies: number }
 
 export interface Message {
   id: string
   sender_id: string
-  recipient_id: string
+  /** Null when the message is addressed to a directory founder with no account. */
+  recipient_id: string | null
+  recipient_founder_id: string | null
   body: string
   created_at: string
   read_at: string | null

@@ -332,6 +332,13 @@ input[type="number"] { font-family: var(--mono); font-variant-numeric: tabular-n
 }
 .convo-sub { display: block; font-size: 11px; font-weight: normal; color: var(--meta); margin-top: 1px; }
 .back { text-decoration: none; }
+.founder-title { font-size: 10px; color: var(--meta); }
+/* Stamped on every saved-but-undelivered message, so the state stays visible on
+   the message itself and not only in the banner at the top of the thread. */
+.undelivered {
+  font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: bold;
+  color: var(--warn); border: 1px solid var(--orange-line); border-radius: 2px; padding: 0 3px;
+}
 .unread {
   font-family: var(--mono); font-size: 10px; font-weight: bold; line-height: 16px;
   min-width: 16px; height: 16px; padding: 0 4px; text-align: center; flex: none;

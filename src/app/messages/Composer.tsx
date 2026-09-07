@@ -6,9 +6,13 @@ import { createClient } from '@/lib/supabase/client'
 
 export default function Composer({
   recipientId,
+  recipientFounderId,
   recipientName,
 }: {
-  recipientId: string
+  /** Set for someone with an account. */
+  recipientId?: string
+  /** Set instead for a directory founder — saved, never delivered. */
+  recipientFounderId?: string
   recipientName: string
 }) {
   const router = useRouter()
@@ -25,9 +29,13 @@ export default function Composer({
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { setError('Your session has expired. Sign in again.'); setBusy(false); return }
 
-    const { error: dbError } = await supabase
-      .from('messages')
-      .insert({ sender_id: user.id, recipient_id: recipientId, body: text })
+    // Exactly one recipient column is set; the database rejects anything else.
+    const { error: dbError } = await supabase.from('messages').insert({
+      sender_id: user.id,
+      recipient_id: recipientId ?? null,
+      recipient_founder_id: recipientFounderId ?? null,
+      body: text,
+    })
 
     setBusy(false)
     // The message is only cleared once the database has taken it. A failed
@@ -47,13 +55,17 @@ export default function Composer({
         onKeyDown={e => {
           if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); send() }
         }}
-        placeholder={`Message ${recipientName.split(' ')[0]}`}
+        placeholder={recipientFounderId
+          ? `Note about ${recipientName.split(' ')[0]} — saved to your account only`
+          : `Message ${recipientName.split(' ')[0]}`}
         maxLength={4000}
       />
       <div className="composer-foot">
-        <span className="hint">⌘/Ctrl + Enter sends</span>
+        <span className="hint">
+          {recipientFounderId ? 'Saved to your account — not delivered' : '⌘/Ctrl + Enter sends'}
+        </span>
         <button className="btn btn-p btn-sm" onClick={send} disabled={busy || !body.trim()}>
-          {busy ? 'Sending…' : 'Send'}
+          {busy ? 'Saving…' : recipientFounderId ? 'Save note' : 'Send'}
         </button>
       </div>
     </div>

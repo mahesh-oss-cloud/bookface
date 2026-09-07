@@ -3,18 +3,34 @@ import { createClient } from '@/lib/supabase/server'
 import Chrome from '@/components/Chrome'
 import Composer from './Composer'
 import MarkRead from './MarkRead'
-import type { Profile, Company, Message } from '@/lib/types'
+import type { Profile, Company, Message, DirectoryFounder, DirectoryCompany } from '@/lib/types'
 import { initials, shortWhen, fullWhen } from '@/lib/people'
 
 export const dynamic = 'force-dynamic'
 
+/** A conversation, whether the other end holds an account or not. */
+type Thread = {
+  key: string
+  href: string
+  name: string
+  sub: string | null
+  items: Message[]
+  last: Message | null
+  unread: number
+  /** Null for a directory founder — nothing was delivered to them. */
+  profileId: string | null
+  founder: DirectoryFounder | null
+  linkedin: string | null
+}
+
 export default async function MessagesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ with?: string }>
+  searchParams: Promise<{ with?: string; founder?: string }>
 }) {
   const params = await searchParams
   const withId = (params.with ?? '').trim()
+  const founderId = (params.founder ?? '').trim()
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -31,27 +47,80 @@ export default async function MessagesPage({
   const people = (peopleRes.data ?? []) as Profile[]
   const companies = (coRes.data ?? []) as Pick<Company, 'id' | 'name'>[]
   const messages = (msgRes.data ?? []) as Message[]
-
-  const others = people.filter(p => p.id !== user.id)
   const byId = new Map(people.map(p => [p.id, p]))
   const companyName = (p: Profile) => companies.find(c => c.id === p.company_id)?.name ?? null
 
-  const threads = others.map(p => {
+  // Every directory founder this person has written to, plus the one they are
+  // opening right now even if nothing has been sent yet.
+  const founderIds = Array.from(new Set([
+    ...messages.map(m => m.recipient_founder_id).filter((v): v is string => !!v),
+    ...(founderId ? [founderId] : []),
+  ]))
+
+  const { data: founderRows } = founderIds.length
+    ? await supabase.from('directory_founders').select('*').in('id', founderIds)
+    : { data: [] }
+  const founders = (founderRows ?? []) as DirectoryFounder[]
+
+  const { data: founderCoRows } = founders.length
+    ? await supabase.from('directory_companies').select('id, name, batch')
+        .in('id', Array.from(new Set(founders.map(f => f.company_id))))
+    : { data: [] }
+  const founderCompanies = new Map(
+    ((founderCoRows ?? []) as Pick<DirectoryCompany, 'id' | 'name' | 'batch'>[])
+      .map(c => [c.id, c])
+  )
+
+  const personThreads: Thread[] = people.filter(p => p.id !== user.id).map(p => {
     const items = messages.filter(
       m => (m.sender_id === p.id && m.recipient_id === user.id)
         || (m.sender_id === user.id && m.recipient_id === p.id)
     )
-    const last = items[items.length - 1] ?? null
-    const unread = items.filter(m => m.recipient_id === user.id && !m.read_at).length
-    return { person: p, items, last, unread }
-  }).sort((a, b) => {
+    return {
+      key: `p:${p.id}`,
+      href: `/messages?with=${p.id}`,
+      name: p.full_name,
+      sub: [p.title, companyName(p)].filter(Boolean).join(' · ') || null,
+      items,
+      last: items[items.length - 1] ?? null,
+      unread: items.filter(m => m.recipient_id === user.id && !m.read_at).length,
+      profileId: p.id,
+      founder: null,
+      linkedin: null,
+    }
+  })
+
+  const founderThreads: Thread[] = founders.map(f => {
+    const items = messages.filter(m => m.recipient_founder_id === f.id)
+    const co = founderCompanies.get(f.company_id)
+    return {
+      key: `f:${f.id}`,
+      href: `/messages?founder=${f.id}`,
+      name: f.name,
+      sub: [f.title, co ? `${co.name}${co.batch ? ` (${co.batch})` : ''}` : null]
+        .filter(Boolean).join(' · ') || null,
+      items,
+      last: items[items.length - 1] ?? null,
+      unread: 0,
+      profileId: null,
+      founder: f,
+      linkedin: f.linkedin_url,
+    }
+  })
+
+  const threads = [...personThreads, ...founderThreads].sort((a, b) => {
     if (a.last && b.last) return a.last.created_at < b.last.created_at ? 1 : -1
     if (a.last) return -1
     if (b.last) return 1
-    return a.person.full_name.localeCompare(b.person.full_name)
+    return a.name.localeCompare(b.name)
   })
 
-  const open = withId ? threads.find(t => t.person.id === withId) ?? null : null
+  const open = founderId
+    ? threads.find(t => t.founder?.id === founderId) ?? null
+    : withId
+      ? threads.find(t => t.profileId === withId) ?? null
+      : null
+
   const unreadIds = open
     ? open.items.filter(m => m.recipient_id === user.id && !m.read_at).map(m => m.id)
     : []
@@ -63,28 +132,25 @@ export default async function MessagesPage({
         <div className="block msg-list">
           <div className="block-hd">
             <h2>Messages</h2>
-            <span className="aside">{others.length} people</span>
+            <span className="aside">{threads.length}</span>
           </div>
           {threads.map(t => (
-            <Link
-              key={t.person.id}
-              href={`/messages?with=${t.person.id}`}
-              className={`convo${open?.person.id === t.person.id ? ' on' : ''}`}
-            >
+            <Link key={t.key} href={t.href} className={`convo${open?.key === t.key ? ' on' : ''}`}>
               <span className="av" style={{ width: 28, height: 28, fontSize: 10 }}>
-                {initials(t.person.full_name)}
+                {initials(t.name)}
               </span>
               <span className="convo-body">
                 <span className="convo-top">
-                  <strong>{t.person.full_name}</strong>
+                  <strong>{t.name}</strong>
                   {t.last && <span className="convo-when">{shortWhen(t.last.created_at)}</span>}
                 </span>
                 <span className="convo-prev">
                   {t.last
                     ? <>{t.last.sender_id === user.id && <span className="dim">You: </span>}{t.last.body}</>
-                    : <span className="dim">{t.person.title}</span>}
+                    : <span className="dim">{t.sub}</span>}
                 </span>
               </span>
+              {t.founder && <span className="offbook">off</span>}
               {t.unread > 0 && <span className="unread">{t.unread}</span>}
             </Link>
           ))}
@@ -97,9 +163,10 @@ export default async function MessagesPage({
               <div className="empty">
                 <strong>Pick someone on the left</strong>
                 <p>
-                  Messages here go to the person you send them to and stay between
-                  the two of you. Partners cannot read them, and neither can anyone
-                  else in the batch.
+                  Messages to someone with a Bookface account reach them and stay
+                  between the two of you. Messages to a founder from the company
+                  directory are kept as your own notes &mdash; they are not sent
+                  anywhere, and the thread will tell you so.
                 </p>
               </div>
             </>
@@ -107,23 +174,36 @@ export default async function MessagesPage({
             <>
               <div className="block-hd">
                 <h2>
-                  {open.person.full_name}
-                  <span className="convo-sub">
-                    {open.person.title}
-                    {companyName(open.person) && <> &middot; {companyName(open.person)}</>}
-                  </span>
+                  {open.linkedin
+                    ? <a href={open.linkedin} target="_blank" rel="noreferrer">{open.name}</a>
+                    : open.name}
+                  {open.sub && <span className="convo-sub">{open.sub}</span>}
                 </h2>
                 <Link className="aside back" href="/messages">All conversations</Link>
               </div>
 
-              <MarkRead ids={unreadIds} />
+              {open.founder ? (
+                // Said plainly and above the composer, because the one thing this
+                // must never do is let someone believe a message went out.
+                <div className="notice notice-info" style={{ margin: 12, borderRadius: 2 }}>
+                  <strong>{open.name.split(' ')[0]} is not on Bookface.</strong>{' '}
+                  Anything you write here is saved to your own account and is not
+                  delivered &mdash; they will never see it and cannot reply.
+                  {open.linkedin && <> To actually reach them, use{' '}
+                    <a href={open.linkedin} target="_blank" rel="noreferrer">their LinkedIn</a>.</>}
+                </div>
+              ) : (
+                <MarkRead ids={unreadIds} />
+              )}
 
               <div className="thread">
                 {open.items.length === 0 ? (
                   <div className="empty">
                     <strong>Nothing yet</strong>
                     <p>
-                      This is the start of your conversation with {open.person.full_name.split(' ')[0]}.
+                      {open.founder
+                        ? `Notes you write about ${open.name.split(' ')[0]} will appear here.`
+                        : `This is the start of your conversation with ${open.name.split(' ')[0]}.`}
                     </p>
                   </div>
                 ) : open.items.map(m => {
@@ -134,6 +214,7 @@ export default async function MessagesPage({
                         <div className="bubble-who">
                           {mine ? 'You' : byId.get(m.sender_id)?.full_name ?? 'Unknown'}
                           <span className="bubble-when">{fullWhen(m.created_at)}</span>
+                          {open.founder && <span className="undelivered">not delivered</span>}
                         </div>
                         <div className="bubble-body">{m.body}</div>
                       </div>
@@ -142,7 +223,11 @@ export default async function MessagesPage({
                 })}
               </div>
 
-              <Composer recipientId={open.person.id} recipientName={open.person.full_name} />
+              <Composer
+                recipientId={open.profileId ?? undefined}
+                recipientFounderId={open.founder?.id}
+                recipientName={open.name}
+              />
             </>
           )}
         </div>

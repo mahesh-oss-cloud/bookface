@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import Chrome from '@/components/Chrome'
 import MessageLink from '@/components/MessageLink'
 import ImportCsv from './ImportCsv'
-import type { Profile, DirectoryCompany, BatchFacet, NameFacet } from '@/lib/types'
+import type { Profile, DirectoryCompany, DirectoryFounder, BatchFacet, NameFacet } from '@/lib/types'
 import { matchAccount } from '@/lib/people'
 
 export const dynamic = 'force-dynamic'
@@ -64,6 +64,21 @@ export default async function DirectoryPage({
   const batches = (batchRes.data ?? []) as BatchFacet[]
   const industries = (indRes.data ?? []) as NameFacet[]
   const regions = (regRes.data ?? []) as NameFacet[]
+
+  // Founders are fetched only for the fifty companies actually on this page —
+  // there are 10,841 of them in total.
+  const { data: founderRows } = companies.length
+    ? await supabase
+        .from('directory_founders')
+        .select('*')
+        .in('company_id', companies.map(c => c.id))
+        .order('sort_order')
+    : { data: [] }
+
+  const foundersByCompany = new Map<string, DirectoryFounder[]>()
+  for (const f of (founderRows ?? []) as DirectoryFounder[]) {
+    foundersByCompany.set(f.company_id, [...(foundersByCompany.get(f.company_id) ?? []), f])
+  }
 
   const filtered = !!(q || batch || industry || region || top)
   const pages = Math.max(1, Math.ceil(total / PER_PAGE))
@@ -150,11 +165,13 @@ export default async function DirectoryPage({
               <p style={{ margin: '0 0 8px' }}>
                 Every company with a public page in the accelerator&rsquo;s directory
                 &mdash; name, logo, what they do, batch, industry, location, team size
-                and status. All of it is the company&rsquo;s own public listing.
+                and status, with the founders each company lists. All of it is the
+                company&rsquo;s own public listing.
               </p>
               <p style={{ margin: 0 }}>
-                Founder names are shown where we hold them. The public listing does not
-                publish founders as data, so most rows have none rather than a guess.
+                A founder&rsquo;s name links to the profile they published. The envelope
+                opens a thread: it reaches them if they are on Bookface, and is kept as
+                your own note if they are not &mdash; the thread says which.
               </p>
             </div>
           </div>
@@ -179,7 +196,7 @@ export default async function DirectoryPage({
             <>
               <div className="dc-list">
                 {companies.map(c => {
-                  const founders = c.founders ?? []
+                  const founders = foundersByCompany.get(c.id) ?? []
                   return (
                     <article className="dc" key={c.id}>
                       {c.logo_url
@@ -209,14 +226,19 @@ export default async function DirectoryPage({
                         {founders.length > 0 && (
                           <div className="dc-founders">
                             <span className="eyebrow">Founders</span>
-                            {founders.map(name => {
-                              const account = matchAccount(name, people)
+                            {founders.map(f => {
+                              const account = matchAccount(f.name, people)
                               return (
-                                <span className="founder" key={name}>
-                                  {name}
-                                  {account && (account.id === user.id
-                                    ? <span className="tag">you</span>
-                                    : <MessageLink to={account.id} name={name} />)}
+                                <span className="founder" key={f.id}>
+                                  {f.linkedin_url
+                                    ? <a href={f.linkedin_url} target="_blank" rel="noreferrer">{f.name}</a>
+                                    : f.name}
+                                  {f.title && <span className="founder-title">{f.title}</span>}
+                                  {account
+                                    ? account.id === user.id
+                                      ? <span className="tag">you</span>
+                                      : <MessageLink to={account.id} name={f.name} />
+                                    : <MessageLink founder={f.id} name={f.name} />}
                                 </span>
                               )
                             })}
