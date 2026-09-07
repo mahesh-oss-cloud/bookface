@@ -16,12 +16,13 @@ export interface NavItem { href: string; label: string }
  * by accident.
  */
 export default function MobileNav({
-  items, current, name, role,
+  items, current, name, role, unread = 0,
 }: {
   items: NavItem[]
   current: string
   name: string
   role: 'founder' | 'partner'
+  unread?: number
 }) {
   const [open, setOpen] = useState(false)
 
@@ -52,6 +53,7 @@ export default function MobileNav({
             {rest.map(i => (
               <Link key={i.href} href={i.href} className="sheet-link" onClick={() => setOpen(false)}>
                 {i.label}
+                {i.href === '/messages' && unread > 0 && <span className="unread">{unread}</span>}
               </Link>
             ))}
             <div className="sheet-foot"><SignOut /></div>
@@ -71,6 +73,9 @@ export default function MobileNav({
           aria-expanded={open}
         >
           More
+          {/* Messages sits behind More, so an unread one has to be visible from
+              whichever tab you happen to be on. */}
+          {unread > 0 && <span className="unread">{unread}</span>}
         </button>
       </nav>
     </>

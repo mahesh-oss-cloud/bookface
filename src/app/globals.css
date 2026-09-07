@@ -245,6 +245,104 @@ input[type="number"] { font-family: var(--mono); font-variant-numeric: tabular-n
 .tabbar { display: none; }
 .sheet-scrim { display: none; }
 
+/* ── company directory ──────────────────────────────────── */
+.filters .field:last-of-type { margin-bottom: 12px; }
+.dc-list { display: flex; flex-direction: column; }
+.dc {
+  display: flex; gap: 11px; padding: 12px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.dc:last-child { border-bottom: 0; }
+.dc:hover { background: var(--panel-2); }
+.dc-mark {
+  width: 34px; height: 34px; flex: none; border-radius: 2px;
+  background: var(--panel); border: 1px solid var(--rule); color: var(--ink-2);
+  font-size: 15px; font-weight: bold; display: grid; place-items: center;
+}
+.dc-main { min-width: 0; flex: 1; }
+.dc-name {
+  margin: 0; font-size: 13.5px; font-weight: bold;
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.dc-line { margin: 2px 0 0; font-size: 12.5px; color: var(--ink-2); line-height: 1.5; }
+.dc-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
+.dc-founders {
+  display: flex; align-items: center; gap: 6px 14px; flex-wrap: wrap;
+  margin-top: 7px; padding-top: 7px; border-top: 1px dotted var(--rule);
+}
+.founder { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--ink-2); }
+.filter-grid { display: contents; }
+.offbook {
+  font-size: 10px; color: var(--meta); border: 1px dashed var(--rule);
+  border-radius: 2px; padding: 0 4px; white-space: nowrap;
+}
+
+/* ── messaging ──────────────────────────────────────────── */
+.msgbtn {
+  display: inline-flex; align-items: center; gap: 4px; flex: none;
+  border: 1px solid var(--rule); border-radius: 2px; background: var(--surface);
+  color: var(--meta); padding: 2px 5px; line-height: 1; text-decoration: none;
+}
+.msgbtn:hover {
+  color: var(--orange-dim); border-color: var(--orange-line);
+  background: var(--orange-wash); text-decoration: none;
+}
+.msgbtn svg { display: block; }
+.msgbtn-lg { font-size: 11px; padding: 5px 8px; align-self: center; }
+
+.cols-msg { display: grid; grid-template-columns: 262px minmax(0,1fr); gap: 16px; align-items: start; }
+.msg-list { max-height: calc(100vh - 110px); overflow-y: auto; }
+.convo {
+  display: flex; align-items: center; gap: 9px; padding: 9px 11px;
+  border-bottom: 1px solid var(--rule-soft); text-decoration: none; color: var(--ink);
+}
+.convo:last-child { border-bottom: 0; }
+.convo:hover { background: var(--panel-2); text-decoration: none; }
+.convo.on { background: var(--orange-wash); box-shadow: inset 2px 0 0 var(--orange); }
+.convo-body { min-width: 0; flex: 1; }
+.convo-top { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+.convo-top strong { font-size: 12.5px; }
+.convo-when { font-family: var(--mono); font-size: 10px; color: var(--meta); flex: none; }
+.convo-prev {
+  display: block; font-size: 11.5px; color: var(--meta); margin-top: 1px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.convo-sub { display: block; font-size: 11px; font-weight: normal; color: var(--meta); margin-top: 1px; }
+.back { text-decoration: none; }
+.unread {
+  font-family: var(--mono); font-size: 10px; font-weight: bold; line-height: 16px;
+  min-width: 16px; height: 16px; padding: 0 4px; text-align: center; flex: none;
+  background: var(--orange); color: #fff; border-radius: 8px;
+}
+
+/* Newest message sits against the composer, the way a chat reads, rather than
+   leaving a gap under a short conversation. */
+.thread {
+  display: flex; flex-direction: column; justify-content: flex-end; gap: 9px;
+  padding: 12px; min-height: 260px; max-height: calc(100vh - 300px); overflow-y: auto;
+  background: var(--panel-2);
+}
+.thread > .empty { margin: auto 0; }
+.bubble-row { display: flex; }
+.bubble-row.mine { justify-content: flex-end; }
+.bubble {
+  max-width: 74%; border: 1px solid var(--rule); border-radius: 2px;
+  background: var(--surface); padding: 7px 9px;
+}
+.bubble-row.mine .bubble { background: var(--orange-wash); border-color: var(--orange-line); }
+.bubble-who {
+  display: flex; align-items: baseline; gap: 7px;
+  font-size: 10px; font-weight: bold; color: var(--ink-2); margin-bottom: 3px;
+}
+.bubble-when { font-family: var(--mono); font-weight: normal; color: var(--meta); }
+.bubble-body { font-size: 12.5px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
+
+.composer { padding: 10px 12px; border-top: 1px solid var(--rule); }
+.composer-foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 7px;
+}
+.composer-foot .hint { font-size: 11px; color: var(--meta); }
+
 @media (max-width: 720px) {
   .wrap { padding: 10px; }
   /* Clear the fixed tab bar plus the iPhone home indicator. */
@@ -301,6 +399,21 @@ input[type="number"] { font-family: var(--mono); font-variant-numeric: tabular-n
   .co-hd { gap: 10px; padding: 12px 10px; }
   .co-name { font-size: 17px; }
   .strip { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  /* Phone: the conversation list and the open thread are separate screens,
+     because 390px will not carry both. */
+  .cols-msg { grid-template-columns: minmax(0,1fr); }
+  .cols-msg .msg-list { max-height: none; }
+  .cols-msg.has-thread .msg-list { display: none; }
+  .cols-msg:not(.has-thread) .msg-thread { display: none; }
+  .thread { max-height: none; }
+  .bubble { max-width: 86%; }
+  .dc { padding: 12px 10px; }
+  .dc-name { font-size: 14px; }
+  /* Four stacked 16px selects push the company list off the first screen, so the
+     filters pair up and the explanatory panel moves out of the way. */
+  .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 8px; }
+  .about-list { display: none; }
+
   /* Inputs below 16px make iOS Safari zoom on focus. */
   input, select, textarea { font-size: 16px; }
 }

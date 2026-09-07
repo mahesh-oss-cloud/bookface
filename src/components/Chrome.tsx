@@ -13,6 +13,7 @@ const NAV = [
   { href: '/batch', label: 'Batch' },
   { href: '/directory', label: 'Companies' },
   { href: '/people', label: 'People' },
+  { href: '/messages', label: 'Messages' },
 ]
 
 function initials(name: string): string {
@@ -24,13 +25,21 @@ export default async function Chrome({ current }: { current: string }) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
 
-  const { data } = await supabase
-    .from('profiles')
-    .select('id, full_name, bookface_id, role, title, company_id')
-    .eq('id', user.id)
-    .single()
+  const [meRes, unreadRes] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('id, full_name, bookface_id, role, title, company_id')
+      .eq('id', user.id)
+      .single(),
+    supabase
+      .from('messages')
+      .select('id', { count: 'exact', head: true })
+      .eq('recipient_id', user.id)
+      .is('read_at', null),
+  ])
 
-  const profile = data as Profile | null
+  const profile = meRes.data as Profile | null
+  const unread = unreadRes.count ?? 0
 
   // The partner has no weekly update to file — reporting belongs to founders —
   // so that item simply isn't in their nav.
@@ -47,6 +56,7 @@ export default async function Chrome({ current }: { current: string }) {
           {items.map(item => (
             <Link key={item.href} href={item.href} className={item.href === current ? 'on' : ''}>
               {item.label}
+              {item.href === '/messages' && unread > 0 && <span className="unread">{unread}</span>}
             </Link>
           ))}
         </nav>
@@ -63,6 +73,7 @@ export default async function Chrome({ current }: { current: string }) {
         current={current}
         name={profile?.full_name ?? ''}
         role={profile?.role ?? 'founder'}
+        unread={unread}
       />
     </header>
   )

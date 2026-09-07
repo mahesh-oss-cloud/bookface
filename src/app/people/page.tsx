@@ -1,13 +1,11 @@
 import { createClient } from '@/lib/supabase/server'
 import Chrome from '@/components/Chrome'
+import MessageLink from '@/components/MessageLink'
 import type { Profile, Company } from '@/lib/types'
 import { displayId } from '@/lib/identity'
+import { initials } from '@/lib/people'
 
 export const dynamic = 'force-dynamic'
-
-function initials(name: string): string {
-  return name.split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0]).join('').toUpperCase()
-}
 
 export default async function PeoplePage() {
   const supabase = await createClient()
@@ -42,6 +40,7 @@ export default async function PeoplePage() {
             {displayId(p.bookface_id)}
           </div>
         </span>
+        {p.id !== user!.id && <MessageLink to={p.id} name={p.full_name} label />}
       </div>
     )
   }

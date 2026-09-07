@@ -66,6 +66,18 @@ export interface DirectoryCompany {
   team_size: number | null
   website: string | null
   status: string | null
+  /** Founder names as published by the accelerator. Public business information,
+      not personal data — the same names that appear on a public company page. */
+  founders: string[]
+}
+
+export interface Message {
+  id: string
+  sender_id: string
+  recipient_id: string
+  body: string
+  created_at: string
+  read_at: string | null
 }
 
 export interface Post {

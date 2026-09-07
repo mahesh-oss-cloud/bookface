@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
-const COLUMNS = ['name', 'batch', 'one_liner', 'industry', 'location', 'team_size', 'website', 'status']
+const COLUMNS = ['name', 'batch', 'one_liner', 'industry', 'location', 'team_size', 'website', 'status', 'founders']
 
 /** Minimal RFC-4180 parse: handles quoted fields and embedded commas. */
 function parseCsv(text: string): string[][] {
@@ -52,11 +52,14 @@ export default function ImportCsv() {
     }
 
     const records = rows.slice(1).map(r => {
-      const rec: Record<string, string | number | null> = {}
+      const rec: Record<string, string | number | string[] | null> = {}
       header.forEach((h, i) => {
         if (!COLUMNS.includes(h)) return
         const v = (r[i] ?? '').trim()
         if (h === 'team_size') rec[h] = v ? parseInt(v, 10) || null : null
+        // Several founders share one cell. Semicolons and pipes both work, and
+        // so does a comma once the cell is quoted the way CSV requires.
+        else if (h === 'founders') rec[h] = v ? v.split(/\s*[;|,]\s*/).filter(Boolean) : []
         else rec[h] = v || null
       })
       return rec
@@ -93,12 +96,13 @@ export default function ImportCsv() {
           <label htmlFor="csv">Paste CSV</label>
           <textarea
             id="csv" rows={9} value={text} onChange={e => setText(e.target.value)}
-            placeholder={'name,batch,one_liner,industry,location,team_size,website,status\n'}
+            placeholder={'name,batch,one_liner,industry,location,team_size,website,status,founders\n'}
             style={{ fontFamily: 'var(--mono)', fontSize: 12 }}
           />
           <div className="hint">
             First row is the header. Recognised columns: {COLUMNS.join(', ')}. Anything
-            else is ignored, and only <code>name</code> is required.
+            else is ignored, and only <code>name</code> is required. Put several
+            founders in one <code>founders</code> cell separated by semicolons.
           </div>
         </div>
         {error && <div className="notice notice-err" style={{ marginBottom: 10 }}>{error}</div>}
