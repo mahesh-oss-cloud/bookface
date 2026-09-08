@@ -28,6 +28,29 @@ export function weekNumber(batch: Batch, when: Date = new Date()): number {
 }
 
 /**
+ * Where the batch is, as one word.
+ *
+ * 'upcoming' is the state that only appears once a start date is real and still
+ * in the future — before that was added, a confirmed batch four months out
+ * lit up week one and told you the programme was underway.
+ */
+export type BatchState = 'unconfirmed' | 'upcoming' | 'running' | 'finished'
+
+export function batchState(batch: Batch | null, when: Date = new Date()): BatchState {
+  if (!batch || !batch.dates_confirmed) return 'unconfirmed'
+  if (when.getTime() < new Date(`${batch.starts_on}T00:00:00Z`).getTime()) return 'upcoming'
+  return weekNumber(batch, when) > batch.total_weeks ? 'finished' : 'running'
+}
+
+/** "Kicks off 4 January 2027 — 118 days away" */
+export function startsLabel(batch: Batch, from: Date = new Date()): string {
+  const day = new Date(`${batch.starts_on}T00:00:00Z`)
+    .toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+  const days = daysUntil(`${batch.starts_on}T00:00:00Z`, from)
+  return `Kicks off ${day}${days > 0 ? ` — ${days} day${days === 1 ? '' : 's'} away` : ''}`
+}
+
+/**
  * How the batch's timing is described. Demo Day is fixed, so it is always
  * named; the start is only named once it is real.
  */

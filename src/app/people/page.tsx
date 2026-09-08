@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import Chrome from '@/components/Chrome'
+import { BATCH_ID } from '@/lib/identity'
 import MessageLink from '@/components/MessageLink'
 import type {
   Person, TagFacet, KindFacet, PeopleBatchFacet, BatchFacet,
@@ -146,7 +147,7 @@ export default async function PeoplePage({
               <Link href="/people?here=1">Sign-in set up &mdash; {signedIn}</Link>
               <Link href="/people?kind=partner">Partners</Link>
               <Link href="/people?kind=investor">Investors</Link>
-              <Link href="/people?batch=W26">Your batch &mdash; W26</Link>
+              <Link href={`/people?batch=${BATCH_ID}`}>Your batch &mdash; {BATCH_ID}</Link>
               <Link href="/people">Everyone</Link>
             </div>
           </div>

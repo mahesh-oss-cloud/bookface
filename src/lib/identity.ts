@@ -12,10 +12,20 @@
  * to it.
  */
 
-/** The batch that issues these IDs. Bumping this issues a new namespace. */
-export const BATCH_TAG = 'w26'
+/** Our batch. One place, so moving batches is one edit rather than a hunt. */
+export const BATCH_ID = 'W27'
 
-const AUTH_DOMAIN = `${BATCH_TAG}.bookface.test`
+/** How the batch is written beside an ID: saharshkeerthi@w27 */
+export const BATCH_TAG = BATCH_ID.toLowerCase()
+
+/**
+ * The namespace the existing accounts were created in, frozen deliberately.
+ * It is never shown and never typed — normalizeId() throws away anything after
+ * the @ — so it can differ from the batch above without anyone noticing. Moving
+ * it would orphan every account that already exists, which is a migration, not
+ * a label change.
+ */
+const AUTH_DOMAIN = 'w26.bookface.test'
 
 /** Valid IDs are lowercase letters and digits — no dots, no @, nothing to typo. */
 export const ID_PATTERN = '[a-z0-9]{3,32}'
@@ -31,7 +41,7 @@ export function authAddress(bookfaceId: string): string {
   return `${normalizeId(bookfaceId)}@${AUTH_DOMAIN}`
 }
 
-/** How an ID is written when shown to a person: saharshkeerthi@w26 */
+/** How an ID is written when shown to a person: saharshkeerthi@w27 */
 export function displayId(bookfaceId: string | null): string {
   return bookfaceId ? `${bookfaceId}@${BATCH_TAG}` : '—'
 }

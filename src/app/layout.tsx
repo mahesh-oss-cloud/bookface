@@ -4,7 +4,7 @@ import ServiceWorker from '@/components/ServiceWorker'
 
 export const metadata: Metadata = {
   title: 'Bookface',
-  description: 'Founder portal for the Winter 2026 batch.',
+  description: 'A private network for Y Combinator founders and their group partner.',
   applicationName: 'Bookface',
   manifest: '/manifest.webmanifest',
   appleWebApp: {

@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Bookface',
     short_name: 'Bookface',
-    description: 'Founder portal for the Winter 2026 batch.',
+    description: 'A private network for Y Combinator founders and their group partner.',
     // No browser chrome once installed: it should feel like the batch's app,
     // not a bookmark.
     display: 'standalone',

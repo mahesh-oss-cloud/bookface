@@ -1,9 +1,10 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { BATCH_ID } from '@/lib/identity'
 import Chrome from '@/components/Chrome'
 import type { Profile, Company, WeeklyUpdate, BatchEvent } from '@/lib/types'
 import {
-  type Batch, weekNumber, batchPhase, weekLabel, batchTiming,
+  type Batch, weekNumber, batchPhase, weekLabel, batchTiming, batchState, startsLabel,
   formatDateTime, formatMetric, percentChange,
 } from '@/lib/batch'
 
@@ -16,7 +17,7 @@ export default async function HomePage() {
 
   const [profileRes, batchRes, eventsRes] = await Promise.all([
     supabase.from('profiles').select('id, full_name, bookface_id, role, title, company_id, avatar_url').eq('id', user.id).single(),
-    supabase.from('batches').select('*').eq('id', 'W26').single(),
+    supabase.from('batches').select('*').eq('id', BATCH_ID).single(),
     supabase.from('batch_events').select('*').order('starts_at'),
   ])
 
@@ -25,10 +26,11 @@ export default async function HomePage() {
   const events = (eventsRes.data ?? []) as BatchEvent[]
 
   const week = batch ? weekNumber(batch) : 0
-  // Unconfirmed dates mean the batch has neither started nor finished: no week
-  // is current, and nothing is behind us.
-  const pending = batch ? !batch.dates_confirmed : true
-  const finished = batch ? !pending && week > batch.total_weeks : false
+  // Before kickoff — whether the date is unconfirmed or simply still ahead —
+  // no week is current and nothing is behind us.
+  const state = batchState(batch)
+  const running = state === 'running'
+  const finished = state === 'finished'
   const currentWeek = batch ? Math.min(Math.max(week, 1), batch.total_weeks) : 1
   const isPartner = profile?.role === 'partner'
 
@@ -55,7 +57,9 @@ export default async function HomePage() {
   // are provisional, every stored date is in the past and the filter would empty
   // the list, so show the programme in its stored order instead.
   const upcoming = events.filter(e => new Date(e.starts_at) >= new Date()).slice(0, 5)
-  const shown = pending ? events.slice(0, 5) : upcoming.length > 0 ? upcoming : events.slice(-5)
+  const shown = running || finished
+    ? (upcoming.length > 0 ? upcoming : events.slice(-5))
+    : events.slice(0, 5)
 
   return (
     <>
@@ -67,8 +71,10 @@ export default async function HomePage() {
             <div className="block-hd">
               <h2>{batch?.name ?? 'Batch'}</h2>
               <span className="aside">
-                {pending
+                {state === 'unconfirmed'
                   ? batchTiming(batch!)
+                  : state === 'upcoming'
+                  ? `${batchTiming(batch!)} · ${startsLabel(batch!)}`
                   : finished
                   ? `Programme complete — Demo Day was ${new Date(batch!.demo_day_on).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`
                   : `Week ${currentWeek} of ${batch?.total_weeks ?? 12} · ${batchPhase(currentWeek)}`}
@@ -79,7 +85,7 @@ export default async function HomePage() {
                 {Array.from({ length: batch?.total_weeks ?? 12 }, (_, i) => i + 1).map(w => (
                   <div
                     key={w}
-                    className={`wk ${!pending && (finished || w < currentWeek) ? 'done' : ''} ${!pending && !finished && w === currentWeek ? 'now' : ''}`}
+                    className={`wk ${finished || (running && w < currentWeek) ? 'done' : ''} ${running && w === currentWeek ? 'now' : ''}`}
                   >
                     <div className="n">{String(w).padStart(2, '0')}</div>
                     <div className="l">{weekLabel(w)}</div>
@@ -217,7 +223,11 @@ export default async function HomePage() {
             <div className="pad" style={{ fontSize: 12 }}>
               <div style={{ fontWeight: 'bold' }}>{profile?.full_name}</div>
               <div className="dim">{profile?.title}</div>
-              {myCompany && <div className="dim" style={{ marginTop: 4 }}>{myCompany.name} <span className="batchtag">W26</span></div>}
+              {myCompany && (
+                <div className="dim" style={{ marginTop: 4 }}>
+                  {myCompany.name} <span className="batchtag">{myCompany.batch_id ?? BATCH_ID}</span>
+                </div>
+              )}
             </div>
           </div>
         </aside>

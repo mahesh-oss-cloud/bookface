@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { BATCH_ID } from '@/lib/identity'
 import Chrome from '@/components/Chrome'
 import UpdateForm from './UpdateForm'
 import type { Profile, WeeklyUpdate } from '@/lib/types'
@@ -20,7 +21,7 @@ export default async function UpdatesPage() {
   if (profile?.role === 'partner') redirect('/')
   if (!profile?.company_id) redirect('/')
 
-  const { data: batchRow } = await supabase.from('batches').select('*').eq('id', 'W26').single()
+  const { data: batchRow } = await supabase.from('batches').select('*').eq('id', BATCH_ID).single()
   const batch = batchRow as Batch | null
 
   const raw = batch ? weekNumber(batch) : 1

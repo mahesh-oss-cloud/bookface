@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import Chrome from '@/components/Chrome'
+import { BATCH_ID } from '@/lib/identity'
 import MessageLink from '@/components/MessageLink'
 import ImportCsv from './ImportCsv'
 import type { Profile, DirectoryCompany, DirectoryFounder, BatchFacet, NameFacet } from '@/lib/types'
@@ -165,7 +166,7 @@ export default async function DirectoryPage({
           <div className="block about-list">
             <div className="block-hd"><h2>Jump to</h2></div>
             <div className="quick">
-              <Link href="/directory?batch=W26">Your batch &mdash; W26</Link>
+              <Link href={`/directory?batch=${BATCH_ID}`}>Your batch &mdash; {BATCH_ID}</Link>
               <Link href="/directory?top=1">Top companies</Link>
               <Link href="/directory?region=India">India</Link>
               <Link href="/directory">Everything</Link>

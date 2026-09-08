@@ -1,8 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
+import { BATCH_ID } from '@/lib/identity'
 import Chrome from '@/components/Chrome'
 import OfficeHours from './OfficeHours'
 import type { Profile, BatchEvent, Company } from '@/lib/types'
-import { type Batch, weekNumber, weekLabel, batchPhase, formatDateTime, batchTiming } from '@/lib/batch'
+import { type Batch, weekNumber, weekLabel, batchPhase, formatDateTime, batchTiming, batchState, startsLabel } from '@/lib/batch'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,7 +24,7 @@ export default async function BatchPage() {
 
   const [profileRes, batchRes, eventsRes, ohRes, coRes] = await Promise.all([
     supabase.from('profiles').select('id, full_name, bookface_id, role, title, company_id, avatar_url').eq('id', user.id).single(),
-    supabase.from('batches').select('*').eq('id', 'W26').single(),
+    supabase.from('batches').select('*').eq('id', BATCH_ID).single(),
     supabase.from('batch_events').select('*').order('starts_at'),
     supabase.from('office_hours').select('*').order('starts_at'),
     supabase.from('companies').select('*'),
@@ -36,8 +37,9 @@ export default async function BatchPage() {
   const companies = (coRes.data ?? []) as Company[]
 
   const raw = batch ? weekNumber(batch) : 0
-  const pending = batch ? !batch.dates_confirmed : true
-  const finished = batch ? !pending && raw > batch.total_weeks : false
+  const state = batchState(batch)
+  const running = state === 'running'
+  const finished = state === 'finished'
   const current = batch ? Math.min(Math.max(raw, 1), batch.total_weeks) : 1
 
   return (
@@ -55,7 +57,7 @@ export default async function BatchPage() {
           <div className="pad">
             <div className="strip">
               {Array.from({ length: batch?.total_weeks ?? 12 }, (_, i) => i + 1).map(w => (
-                <div key={w} className={`wk ${!pending && (finished || w < current) ? 'done' : ''} ${!pending && !finished && w === current ? 'now' : ''}`}>
+                <div key={w} className={`wk ${finished || (running && w < current) ? 'done' : ''} ${running && w === current ? 'now' : ''}`}>
                   <div className="n">{String(w).padStart(2, '0')}</div>
                   <div className="l">{weekLabel(w)}</div>
                 </div>
@@ -71,13 +73,18 @@ export default async function BatchPage() {
                 keep filing after Demo Day are the ones who still have the chart a year later.
               </div>
             )}
-            {pending && (
+            {state === 'unconfirmed' && (
               <div className="notice notice-info" style={{ marginTop: 12 }}>
                 The batch runs {batch?.window_label ?? 'over twelve weeks'} and Demo Day is fixed.
                 The start date is still being confirmed, so no week is marked current yet.
               </div>
             )}
-            {!pending && !finished && (
+            {state === 'upcoming' && batch && (
+              <div className="notice notice-info" style={{ marginTop: 12 }}>
+                {startsLabel(batch)}. Nothing is underway yet, so no week is marked current.
+              </div>
+            )}
+            {running && (
               <div style={{ fontSize: 11, color: 'var(--meta)', marginTop: 10 }}>
                 Week {current} · {batchPhase(current)}
               </div>
