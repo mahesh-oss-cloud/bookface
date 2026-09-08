@@ -189,6 +189,10 @@ export interface Person {
   /** Set once this person holds an account here, so a message reaches an inbox
       directly rather than waiting against their directory entry. */
   profile_id: string | null
+  /** Issued to every member. It is what they will sign in with. */
+  bookface_id: string | null
+  /** 'active' once their sign-in exists; 'onboarded' while it is being set up. */
+  account_state: 'active' | 'onboarded'
   /** 'directory' — read off a company listing. 'public' — compiled from public record. */
   source: 'directory' | 'public'
   source_url: string | null

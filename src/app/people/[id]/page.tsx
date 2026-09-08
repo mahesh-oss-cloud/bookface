@@ -80,7 +80,14 @@ export default async function PersonPage({
                   {p.batches.map(b => (
                     <Link className="batchtag" key={b} href={`/people?batch=${b}`}>{b}</Link>
                   ))}
-                  {p.profile_id && !isYou && <span className="herepill">On Bookface</span>}
+                  {!isYou && <span className="herepill">On Bookface</span>}
+                  {/* The bare ID. The suffix on the login form belongs to the
+                      sign-in, not to the person, and reads as a batch claim here. */}
+                  {p.bookface_id && (
+                    <span style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--meta)' }}>
+                      {p.bookface_id}
+                    </span>
+                  )}
                 </div>
               </div>
               <div className="pr-act" style={{ flex: 'none' }}>
@@ -199,10 +206,9 @@ export default async function PersonPage({
                     ? `Read off the public listing of the company ${first} is named on \u2014 the same names that company publishes itself.`
                     : `Read off the public listings of the ${p.companies.length} companies ${first} is named on \u2014 the same names those companies publish themselves.`}
               </p>
-              {!p.profile_id && (
+              {p.account_state === 'onboarded' && (
                 <p style={{ margin: '8px 0 0' }}>
-                  {first} does not hold a Bookface account, so a message is kept against
-                  their directory entry and reaches them the moment one is issued.
+                  {`${first} is on Bookface and holds the ID above. Their sign-in has not been set up yet, so anything you send waits in their inbox until it is.`}
                 </p>
               )}
             </div>

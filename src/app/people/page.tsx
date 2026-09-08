@@ -50,7 +50,7 @@ export default async function PeoplePage({
   if (kind) query = query.eq('kind', kind)
   if (tag) query = query.contains('tags', [tag])
   if (batch) query = query.contains('batches', [batch])
-  if (here) query = query.not('profile_id', 'is', null)
+  if (here) query = query.eq('account_state', 'active')
 
   const [listRes, kindRes, tagRes, pBatchRes, dBatchRes, hereRes] = await Promise.all([
     query,
@@ -58,14 +58,14 @@ export default async function PeoplePage({
     supabase.from('people_tags').select('*').order('people', { ascending: false }).limit(60),
     supabase.from('people_batches').select('*'),
     supabase.from('directory_batches').select('*'),
-    supabase.from('people').select('id', { count: 'exact', head: true }).not('profile_id', 'is', null),
+    supabase.from('people').select('id', { count: 'exact', head: true }).eq('account_state', 'active'),
   ])
 
   const people = (listRes.data ?? []) as Person[]
   const total = listRes.count ?? 0
   const kinds = (kindRes.data ?? []) as KindFacet[]
   const tags = (tagRes.data ?? []) as TagFacet[]
-  const onBookface = hereRes.count ?? 0
+  const signedIn = hereRes.count ?? 0
 
   // The batch facet counts people; directory_batches carries the readable name
   // and the ordering, so the two are merged rather than duplicated.
@@ -131,7 +131,7 @@ export default async function PeoplePage({
               </div>
               <label className="check">
                 <input type="checkbox" name="here" value="1" defaultChecked={here} />
-                <span>On Bookface only</span>
+                <span>Sign-in set up</span>
               </label>
               <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
                 <button className="btn btn-p btn-sm" type="submit">Apply</button>
@@ -143,7 +143,7 @@ export default async function PeoplePage({
           <div className="block about-list">
             <div className="block-hd"><h2>Jump to</h2></div>
             <div className="quick">
-              <Link href="/people?here=1">On Bookface &mdash; {onBookface}</Link>
+              <Link href="/people?here=1">Sign-in set up &mdash; {signedIn}</Link>
               <Link href="/people?kind=partner">Partners</Link>
               <Link href="/people?kind=investor">Investors</Link>
               <Link href="/people?batch=W26">Your batch &mdash; W26</Link>
@@ -163,9 +163,14 @@ export default async function PeoplePage({
                 <strong>Ask me about</strong> is different: it is only ever set by the
                 person themselves, from their own page.
               </p>
-              <p style={{ margin: 0 }}>
+              <p style={{ margin: '0 0 8px' }}>
                 Partners and investors are compiled from public record and each says
                 where to check it.
+              </p>
+              <p style={{ margin: 0 }}>
+                Everyone here is on Bookface and holds a Bookface ID. Where a sign-in
+                has not been set up yet, a message still lands in their inbox and is
+                waiting the first time they log in.
               </p>
             </div>
           </div>
@@ -203,7 +208,9 @@ export default async function PeoplePage({
                           <Link href={`/people/${p.id}`}>{p.name}</Link>
                           {p.kind !== 'founder' && <span className="kindpill">{p.kind}</span>}
                           {isYou && <span className="tag">you</span>}
-                          {p.profile_id && !isYou && <span className="herepill">On Bookface</span>}
+                          {/* Everyone in here is a member; what varies is whether
+                              their sign-in has been set up yet. */}
+                          {!isYou && <span className="herepill">On Bookface</span>}
                         </h3>
                         <p className="pr-role">
                           {p.role_title}
