@@ -13,6 +13,9 @@
   --ink-2: #3d3a36;
   --meta: #767676;
 
+  /* The flat warm grey Y Combinator fills its category pills with. */
+  --pill: #e9e7e0;
+
   --rule: #e2e0dc;
   --rule-soft: #efede8;
 
@@ -328,19 +331,21 @@ input[type="number"] { font-family: var(--mono); font-variant-numeric: tabular-n
 .filters .field:last-of-type { margin-bottom: 12px; }
 .dc-list { display: flex; flex-direction: column; }
 .dc {
-  display: flex; gap: 11px; padding: 12px;
+  display: flex; gap: 16px; padding: 18px 16px;
   border-bottom: 1px solid var(--rule-soft);
 }
 .dc:last-child { border-bottom: 0; }
 .dc:hover { background: var(--panel-2); }
+/* Round, the size of a thumbnail rather than a favicon — a company reads as a
+   company at 64px and as a bullet point at 34. */
 .dc-mark, .dc-logo {
-  width: 34px; height: 34px; flex: none; border-radius: 2px;
-  background: var(--panel); border: 1px solid var(--rule);
+  width: 64px; height: 64px; flex: none; border-radius: 50%;
+  background: var(--surface); border: 1px solid var(--rule);
 }
-.dc-mark { color: var(--ink-2); font-size: 15px; font-weight: bold; display: grid; place-items: center; }
-/* Logos arrive at whatever aspect the company uploaded; contain keeps wordmarks
-   from being squashed into the square. */
-.dc-logo { object-fit: contain; background: var(--surface); padding: 2px; }
+.dc-mark { color: var(--ink-2); font-size: 24px; font-weight: bold; display: grid; place-items: center; }
+/* Logos arrive at whatever aspect the company uploaded; contain keeps a
+   wordmark whole instead of cropping it to fit the circle. */
+.dc-logo { object-fit: contain; padding: 7px; }
 .toptag {
   font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; font-weight: bold;
   color: #fff; background: var(--orange); border: 1px solid var(--orange);
@@ -363,11 +368,40 @@ input[type="number"] { font-family: var(--mono); font-variant-numeric: tabular-n
 .pager [aria-disabled="true"] { opacity: 0.4; pointer-events: none; }
 .dc-main { min-width: 0; flex: 1; }
 .dc-name {
-  margin: 0; font-size: 13.5px; font-weight: bold;
-  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  margin: 0; font-size: 21px; font-weight: 800; letter-spacing: -0.02em;
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
 }
-.dc-line { margin: 2px 0 0; font-size: 12.5px; color: var(--ink-2); line-height: 1.5; }
-.dc-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
+/* The name is the heading, not a link that happens to be a name: black like the
+   accelerator sets it, underlined only on hover. */
+.dc-name a { color: var(--ink); text-decoration: none; }
+.dc-name a:hover { text-decoration: underline; }
+/* Where they are sits beside the name, quietly, the way it does on the
+   accelerator's own listing — not as another pill competing with the tags. */
+.dc-where { font-size: 13px; font-weight: 400; letter-spacing: 0; color: var(--meta); }
+.dc-line { margin: 5px 0 0; font-size: 15px; color: var(--ink); line-height: 1.45; max-width: 66ch; }
+.dc-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 11px; }
+
+/* Category pills. Flat warm grey, upper case, letter-spaced — the shape the
+   accelerator uses, and deliberately not the bordered mono .tag used in dense
+   panels elsewhere. */
+.pill {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em;
+  color: var(--ink-2); background: var(--pill); border-radius: 5px;
+  padding: 5px 10px; white-space: nowrap; text-decoration: none;
+}
+a.pill:hover { background: #dedbd2; text-decoration: none; }
+.pill-top { color: #fff; background: var(--orange); }
+a.pill-top:hover { background: var(--orange-dim); }
+/* The batch pill carries the mark, so the batch reads as the accelerator's
+   rather than as one more category. */
+.ycpill {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 4px 11px 4px 4px; border-radius: 5px; background: var(--pill);
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em;
+  color: var(--ink-2); white-space: nowrap; text-decoration: none;
+}
+a.ycpill:hover { background: #dedbd2; text-decoration: none; }
+.ycpill img { width: 18px; height: 18px; border-radius: 3px; display: block; flex: none; }
 .dc-founders {
   display: flex; align-items: center; gap: 6px 14px; flex-wrap: wrap;
   margin-top: 7px; padding-top: 7px; border-top: 1px dotted var(--rule);
@@ -664,8 +698,10 @@ a.topictag:hover { text-decoration: none; background: var(--orange-line); }
   .cols-msg:not(.has-thread) .msg-thread { display: none; }
   .thread { max-height: none; }
   .bubble { max-width: 86%; }
-  .dc { padding: 12px 10px; }
-  .dc-name { font-size: 14px; }
+  .dc { padding: 14px 10px; gap: 12px; }
+  .dc-mark, .dc-logo { width: 52px; height: 52px; }
+  .dc-name { font-size: 18px; }
+  .dc-line { font-size: 14px; }
   /* Four stacked 16px selects push the company list off the first screen, so the
      filters pair up and the explanatory panel moves out of the way. */
   .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 8px; }

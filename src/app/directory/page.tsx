@@ -195,7 +195,8 @@ export default async function DirectoryPage({
           <div className="block-hd">
             <h2>Companies</h2>
             <span className="aside">
-              {total.toLocaleString()} {filtered ? 'matching' : 'companies'}
+              Showing {companies.length} of {total.toLocaleString()}
+              {filtered ? ' matching companies' : ' companies'}
               {pages > 1 && <> &middot; page {page} of {pages.toLocaleString()}</>}
               {profile?.role === 'partner' && <> &middot; <ImportCsv /></>}
             </span>
@@ -215,25 +216,38 @@ export default async function DirectoryPage({
                     <article className="dc" key={c.id}>
                       {c.logo_url
                         // eslint-disable-next-line @next/next/no-img-element
-                        ? <img className="dc-logo" src={c.logo_url} alt="" width={34} height={34} loading="lazy" />
+                        ? <img className="dc-logo" src={c.logo_url} alt="" width={64} height={64} loading="lazy" />
                         : <span className="dc-mark" aria-hidden="true">{c.name.trim().charAt(0).toUpperCase() || '?'}</span>}
                       <div className="dc-main">
                         <h3 className="dc-name">
                           {/* Inward, to our own profile. Bouncing straight out to the
                               public listing would defeat the point of the network. */}
                           <Link href={`/directory/${c.id}`}>{c.name}</Link>
-                          {c.batch && <span className="batchtag">{c.batch}</span>}
-                          {c.top_company && <span className="toptag">Top</span>}
-                          {c.status && c.status !== 'Active' && <span className="rolepill">{c.status}</span>}
+                          {c.location && <span className="dc-where">{c.location}</span>}
                         </h3>
                         {c.one_liner && <p className="dc-line">{c.one_liner}</p>}
                         <div className="dc-tags">
-                          {c.industry && <span className="tag">{c.industry}</span>}
-                          {c.location && <span className="tag">{c.location}</span>}
-                          {c.team_size != null && c.team_size > 0 && (
-                            <span className="tag">{c.team_size.toLocaleString()} {c.team_size === 1 ? 'person' : 'people'}</span>
+                          {c.batch && (
+                            <Link className="ycpill" href={`/directory?batch=${c.batch}`}>
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src="/yc-mark.png" alt="" width={18} height={18} />
+                              {c.batch_name ?? c.batch}
+                            </Link>
                           )}
-                          <Link className="tag" href={`/directory/${c.id}`}>Profile</Link>
+                          {c.industry && (
+                            <Link className="pill" href={`/directory?industry=${encodeURIComponent(c.industry)}`}>{c.industry}</Link>
+                          )}
+                          {/* The listing stores sub-industry as "B2B -> Sales"; only the
+                              leaf is worth a pill, and only when it adds to the industry. */}
+                          {(() => {
+                            const sub = c.subindustry?.replace(/^.*->\s*/, '').trim()
+                            return sub && sub !== c.industry ? <span className="pill">{sub}</span> : null
+                          })()}
+                          {c.top_company && <Link className="pill pill-top" href="/directory?top=1">Top company</Link>}
+                          {c.status && c.status !== 'Active' && <span className="pill">{c.status}</span>}
+                          {c.team_size != null && c.team_size > 0 && (
+                            <span className="pill">{c.team_size.toLocaleString()} {c.team_size === 1 ? 'person' : 'people'}</span>
+                          )}
                         </div>
                         {founders.length > 0 && (
                           <div className="dc-founders">
