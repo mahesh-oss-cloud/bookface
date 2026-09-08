@@ -71,6 +71,9 @@ export default async function PeoplePage({
   // The batch facet counts people; directory_batches carries the readable name
   // and the ordering, so the two are merged rather than duplicated.
   const named = new Map((dBatchRes.data ?? []).map((b: BatchFacet) => [b.batch, b]))
+  const batchName = new Map(
+    (dBatchRes.data ?? []).map((b: BatchFacet) => [b.batch, b.batch_name ?? b.batch])
+  )
   const batches = ((pBatchRes.data ?? []) as PeopleBatchFacet[])
     .map(b => ({ ...b, name: named.get(b.batch)?.batch_name ?? b.batch, sort: named.get(b.batch)?.batch_sort ?? -1 }))
     .sort((a, b) => b.sort - a.sort)
@@ -181,7 +184,8 @@ export default async function PeoplePage({
           <div className="block-hd">
             <h2>People</h2>
             <span className="aside">
-              {total.toLocaleString()} {filtered ? 'matching' : 'people'}
+              Showing {people.length} of {total.toLocaleString()}
+              {filtered ? ' matching people' : ' people'}
               {pages > 1 && <> &middot; page {page} of {pages.toLocaleString()}</>}
             </span>
           </div>
@@ -217,16 +221,24 @@ export default async function PeoplePage({
                           {p.role_title}
                           {p.role_title && p.org && ' · '}
                           {p.org}
-                          {p.batches.slice(0, 3).map(b => <span className="batchtag" key={b}>{b}</span>)}
                         </p>
                         {p.known_for && <p className="pr-known">{p.known_for}</p>}
-                        {shown.length > 0 && (
+                        {(p.batches.length > 0 || shown.length > 0) && (
                           <div className="dc-tags">
+                            {/* The batch spelled out, the way the company list
+                                spells it — one size down for a person. */}
+                            {p.batches.slice(0, 2).map(b => (
+                              <Link className="ycpill ycpill-sm" key={b} href={hrefWith({ batch: b, page: undefined })}>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src="/yc-mark.png" alt="" width={14} height={14} />
+                                {batchName.get(b) ?? b}
+                              </Link>
+                            ))}
                             {p.expertise.slice(0, 5).map(t => (
-                              <Link className="tag tag-own" key={`e-${t}`} href={hrefWith({ tag: t, page: undefined })}>{t}</Link>
+                              <Link className="pill pill-sm pill-own" key={`e-${t}`} href={hrefWith({ tag: t, page: undefined })}>{t}</Link>
                             ))}
                             {p.works_on.slice(0, Math.max(0, 5 - p.expertise.length)).map(t => (
-                              <Link className="tag" key={`w-${t}`} href={hrefWith({ tag: t, page: undefined })}>{t}</Link>
+                              <Link className="pill pill-sm" key={`w-${t}`} href={hrefWith({ tag: t, page: undefined })}>{t}</Link>
                             ))}
                           </div>
                         )}

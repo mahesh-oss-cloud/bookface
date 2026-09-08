@@ -242,25 +242,28 @@ input[type="number"] { font-family: var(--mono); font-variant-numeric: tabular-n
 
 /* ── people directory ───────────────────────────────────── */
 .pr {
-  display: flex; gap: 11px; padding: 11px 12px; align-items: flex-start;
+  display: flex; gap: 13px; padding: 14px 14px; align-items: flex-start;
   border-bottom: 1px solid var(--rule-soft);
 }
 .pr:last-child { border-bottom: 0; }
 .pr:hover { background: var(--panel-2); }
 .pr-face {
-  width: 38px; height: 38px; flex: none; border-radius: 50%;
+  width: 48px; height: 48px; flex: none; border-radius: 50%;
   background: var(--panel); border: 1px solid var(--rule); color: var(--meta);
-  font-size: 12px; font-weight: bold; display: grid; place-items: center;
+  font-size: 14px; font-weight: bold; display: grid; place-items: center;
   object-fit: cover;
 }
 .pr-main { min-width: 0; flex: 1; }
 .pr-name {
-  margin: 0; font-size: 13.5px; font-weight: bold;
-  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  margin: 0; font-size: 17px; font-weight: 800; letter-spacing: -0.015em;
+  display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
 }
-.pr-role { margin: 2px 0 0; font-size: 12px; color: var(--meta); display: flex;
+.pr-name a { color: var(--ink); text-decoration: none; }
+.pr-name a:hover { text-decoration: underline; }
+.pr-role { margin: 3px 0 0; font-size: 13px; color: var(--meta); display: flex;
            align-items: center; gap: 5px; flex-wrap: wrap; }
-.pr-known { margin: 4px 0 0; font-size: 12px; color: var(--ink-2); line-height: 1.55; max-width: 66ch; }
+.pr-known { margin: 5px 0 0; font-size: 13.5px; color: var(--ink-2); line-height: 1.5; max-width: 68ch; }
+.pr .dc-tags { margin-top: 9px; gap: 6px; }
 .pr-act {
   flex: none; padding-top: 2px;
   display: flex; flex-direction: column; align-items: flex-end; gap: 5px;
@@ -270,12 +273,11 @@ input[type="number"] { font-family: var(--mono); font-variant-numeric: tabular-n
    nothing, so it gets no pill. */
 .kindpill {
   font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: bold;
-  color: var(--orange-dim); border: 1px solid var(--orange-line);
-  background: var(--orange-wash); padding: 0 5px; border-radius: 2px;
+  color: #fff; background: var(--orange); padding: 3px 7px; border-radius: 4px;
 }
 .herepill {
-  font-size: 10px; font-weight: bold; color: var(--good);
-  border: 1px solid #c9e2cc; background: #f2f8f3; padding: 0 5px; border-radius: 2px;
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: bold;
+  color: #2c6b30; background: #e4efe4; padding: 3px 7px; border-radius: 4px;
   white-space: nowrap;
 }
 
@@ -402,6 +404,14 @@ a.pill-top:hover { background: var(--orange-dim); }
 }
 a.ycpill:hover { background: #dedbd2; text-decoration: none; }
 .ycpill img { width: 18px; height: 18px; border-radius: 3px; display: block; flex: none; }
+/* One step down, for the people rows: same family, less weight on the page,
+   because a person is a row in a list of ten thousand and a company is not. */
+.pill-sm { font-size: 10px; letter-spacing: 0.06em; padding: 3px 8px; border-radius: 4px; }
+.ycpill-sm { font-size: 10px; letter-spacing: 0.06em; padding: 3px 8px 3px 3px; border-radius: 4px; gap: 5px; }
+.ycpill-sm img { width: 14px; height: 14px; border-radius: 2px; }
+/* Declared by the person rather than derived, so it keeps the accent. */
+.pill-own { color: var(--orange-dim); background: var(--orange-wash); }
+a.pill-own:hover { background: #ffece0; }
 .dc-founders {
   display: flex; align-items: center; gap: 6px 14px; flex-wrap: wrap;
   margin-top: 7px; padding-top: 7px; border-top: 1px dotted var(--rule);
@@ -698,6 +708,8 @@ a.topictag:hover { text-decoration: none; background: var(--orange-line); }
   .cols-msg:not(.has-thread) .msg-thread { display: none; }
   .thread { max-height: none; }
   .bubble { max-width: 86%; }
+  .pr { padding: 12px 10px; gap: 11px; }
+  .pr-name { font-size: 16px; }
   .dc { padding: 14px 10px; gap: 12px; }
   .dc-mark, .dc-logo { width: 52px; height: 52px; }
   .dc-name { font-size: 18px; }
