@@ -1,23 +1,24 @@
 import Link from 'next/link'
 
 /**
- * The envelope next to a person. `to` addresses someone with an account;
- * `founder` addresses a founder listed in the directory, whose messages are
- * kept but not delivered — the thread itself says so, rather than the icon
- * quietly implying otherwise.
+ * The envelope next to a person. `to` addresses someone who holds an account;
+ * `person` addresses their entry in the people directory, which every founder,
+ * partner and investor has. Those are kept against the entry and land in a real
+ * inbox the moment that person is issued an account — the thread says so rather
+ * than the icon quietly implying otherwise.
  */
 export default function MessageLink({
   to,
-  founder,
+  person,
   name,
   label = false,
 }: {
   to?: string
-  founder?: string
+  person?: string
   name: string
   label?: boolean
 }) {
-  const href = to ? `/messages?with=${to}` : `/messages?founder=${founder}`
+  const href = to ? `/messages?with=${to}` : `/messages?person=${person}`
   return (
     <Link
       className={`msgbtn${label ? ' msgbtn-lg' : ''}`}

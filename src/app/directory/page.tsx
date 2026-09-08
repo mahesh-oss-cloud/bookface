@@ -4,7 +4,7 @@ import Chrome from '@/components/Chrome'
 import MessageLink from '@/components/MessageLink'
 import ImportCsv from './ImportCsv'
 import type { Profile, DirectoryCompany, DirectoryFounder, BatchFacet, NameFacet } from '@/lib/types'
-import { matchAccount, initials } from '@/lib/people'
+import { matchAccount, initials, personKey } from '@/lib/people'
 
 export const dynamic = 'force-dynamic'
 
@@ -75,8 +75,20 @@ export default async function DirectoryPage({
         .order('sort_order')
     : { data: [] }
 
+  // One row per person in the directory, so the envelope on a founder's name
+  // opens a thread with the person rather than with a line on a company page.
+  const founderRowList = (founderRows ?? []) as DirectoryFounder[]
+  const { data: personRows } = founderRowList.length
+    ? await supabase.from('people').select('id, person_key, profile_id')
+        .in('person_key', founderRowList.map(f => personKey(f.name)))
+    : { data: [] }
+  const personByKey = new Map(
+    ((personRows ?? []) as { id: string; person_key: string; profile_id: string | null }[])
+      .map(r => [r.person_key, r])
+  )
+
   const foundersByCompany = new Map<string, DirectoryFounder[]>()
-  for (const f of (founderRows ?? []) as DirectoryFounder[]) {
+  for (const f of founderRowList) {
     foundersByCompany.set(f.company_id, [...(foundersByCompany.get(f.company_id) ?? []), f])
   }
 
@@ -227,7 +239,9 @@ export default async function DirectoryPage({
                             {founders.map(f => {
                               // profile_id is the authoritative link once a founder
                               // holds an account; the name match is the fallback.
-                              const accountId = f.profile_id ?? matchAccount(f.name, people)?.id ?? null
+                              const entry = personByKey.get(personKey(f.name))
+                              const accountId = f.profile_id ?? entry?.profile_id
+                                ?? matchAccount(f.name, people)?.id ?? null
                               return (
                                 <span className="founder" key={f.id}>
                                   {f.avatar_url
@@ -243,7 +257,7 @@ export default async function DirectoryPage({
                                     ? <span className="tag">you</span>
                                     : accountId
                                       ? <MessageLink to={accountId} name={f.name} />
-                                      : <MessageLink founder={f.id} name={f.name} />}
+                                      : <MessageLink person={entry?.id} name={f.name} />}
                                 </span>
                               )
                             })}

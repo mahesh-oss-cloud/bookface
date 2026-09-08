@@ -119,9 +119,10 @@ export interface NameFacet { industry?: string; region?: string; companies: numb
 export interface Message {
   id: string
   sender_id: string
-  /** Null when the message is addressed to a directory founder with no account. */
+  /** Null when the message is addressed to a directory entry with no account. */
   recipient_id: string | null
-  recipient_founder_id: string | null
+  /** The person in the directory it was written to, account or not. */
+  recipient_person_id: string | null
   body: string
   created_at: string
   read_at: string | null
@@ -157,3 +158,48 @@ export interface CompanyFinances {
   currency: string
   updated_at: string
 }
+
+export type PersonKind = 'founder' | 'investor' | 'partner'
+
+/** One of the companies a person is listed on, denormalised onto their row. */
+export interface PersonCompany {
+  id: string
+  name: string
+  batch: string | null
+  logo_url: string | null
+  title: string | null
+}
+
+/**
+ * A person in the network, whichever door they came in through: named on a
+ * company's public listing, a partner, or an investor with a public tie to the
+ * accelerator. One row per person, not per company they founded.
+ */
+export interface Person {
+  id: string
+  person_key: string
+  name: string
+  kind: PersonKind
+  /** Set for partners and investors: what they are known for in their own right. */
+  known_for: string | null
+  org: string | null
+  role_title: string | null
+  linkedin_url: string | null
+  avatar_url: string | null
+  /** Set once this person holds an account here, so a message reaches an inbox
+      directly rather than waiting against their directory entry. */
+  profile_id: string | null
+  /** 'directory' — read off a company listing. 'public' — compiled from public record. */
+  source: 'directory' | 'public'
+  source_url: string | null
+  batches: string[]
+  companies: PersonCompany[]
+  /** Read off what their companies do. A fact about the companies, not a claim. */
+  works_on: string[]
+  /** Declared by the person themselves. Only they can write it. */
+  expertise: string[]
+}
+
+export interface TagFacet { tag: string; people: number }
+export interface KindFacet { kind: PersonKind; people: number }
+export interface PeopleBatchFacet { batch: string; people: number }

@@ -219,6 +219,59 @@ input[type="number"] { font-family: var(--mono); font-variant-numeric: tabular-n
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
+/* ── people directory ───────────────────────────────────── */
+.pr {
+  display: flex; gap: 11px; padding: 11px 12px; align-items: flex-start;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.pr:last-child { border-bottom: 0; }
+.pr:hover { background: var(--panel-2); }
+.pr-face {
+  width: 38px; height: 38px; flex: none; border-radius: 50%;
+  background: var(--panel); border: 1px solid var(--rule); color: var(--meta);
+  font-size: 12px; font-weight: bold; display: grid; place-items: center;
+  object-fit: cover;
+}
+.pr-main { min-width: 0; flex: 1; }
+.pr-name {
+  margin: 0; font-size: 13.5px; font-weight: bold;
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.pr-role { margin: 2px 0 0; font-size: 12px; color: var(--meta); display: flex;
+           align-items: center; gap: 5px; flex-wrap: wrap; }
+.pr-known { margin: 4px 0 0; font-size: 12px; color: var(--ink-2); line-height: 1.55; max-width: 66ch; }
+.pr-act {
+  flex: none; padding-top: 2px;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 5px;
+}
+
+/* Partner and investor rows carry their kind; founder is the default and says
+   nothing, so it gets no pill. */
+.kindpill {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: bold;
+  color: var(--orange-dim); border: 1px solid var(--orange-line);
+  background: var(--orange-wash); padding: 0 5px; border-radius: 2px;
+}
+.herepill {
+  font-size: 10px; font-weight: bold; color: var(--good);
+  border: 1px solid #c9e2cc; background: #f2f8f3; padding: 0 5px; border-radius: 2px;
+  white-space: nowrap;
+}
+
+.chips { display: flex; gap: 5px; flex-wrap: wrap; }
+.chip {
+  font-size: 11px; color: var(--ink-2); border: 1px solid var(--rule);
+  background: var(--panel-2); padding: 2px 7px; border-radius: 2px;
+  text-decoration: none; font-family: inherit; cursor: pointer;
+}
+.chip:hover { border-color: #c9c5bd; text-decoration: none; }
+/* Declared by the person, not derived — worth telling apart at a glance. */
+.chip-own, .tag-own {
+  color: var(--orange-dim); border-color: var(--orange-line); background: var(--orange-wash);
+}
+.chip-x span { margin-left: 5px; color: var(--meta); }
+.chip-add { border-style: dashed; color: var(--meta); background: transparent; }
+
 /* ── company profile ────────────────────────────────────── */
 /* The logo is the one place a company's own colour is allowed to appear.
    Everything around it stays Bookface's palette — this is the accelerator's

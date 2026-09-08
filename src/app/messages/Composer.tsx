@@ -6,13 +6,13 @@ import { createClient } from '@/lib/supabase/client'
 
 export default function Composer({
   recipientId,
-  recipientFounderId,
+  recipientPersonId,
   recipientName,
 }: {
   /** Set for someone with an account. */
   recipientId?: string
-  /** Set instead for a directory founder — saved, never delivered. */
-  recipientFounderId?: string
+  /** Set instead for a directory entry — kept until that person has an account. */
+  recipientPersonId?: string
   recipientName: string
 }) {
   const router = useRouter()
@@ -33,7 +33,7 @@ export default function Composer({
     const { error: dbError } = await supabase.from('messages').insert({
       sender_id: user.id,
       recipient_id: recipientId ?? null,
-      recipient_founder_id: recipientFounderId ?? null,
+      recipient_person_id: recipientPersonId ?? null,
       body: text,
     })
 

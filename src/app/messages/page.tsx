@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import Chrome from '@/components/Chrome'
 import Composer from './Composer'
 import MarkRead from './MarkRead'
-import type { Profile, Company, Message, DirectoryFounder, DirectoryCompany } from '@/lib/types'
+import type { Profile, Company, Message, Person } from '@/lib/types'
 import { initials, shortWhen, fullWhen } from '@/lib/people'
 
 export const dynamic = 'force-dynamic'
@@ -17,21 +17,21 @@ type Thread = {
   items: Message[]
   last: Message | null
   unread: number
-  /** Set when the thread is addressed to an account directly. A founder thread
-      still reaches a real inbox once that founder's row is linked to one. */
+  /** Set when the thread is addressed to an account directly. A directory
+      thread still reaches a real inbox once that entry is linked to one. */
   profileId: string | null
-  founder: DirectoryFounder | null
+  person: Person | null
   linkedin: string | null
 }
 
 export default async function MessagesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ with?: string; founder?: string }>
+  searchParams: Promise<{ with?: string; person?: string }>
 }) {
   const params = await searchParams
   const withId = (params.with ?? '').trim()
-  const founderId = (params.founder ?? '').trim()
+  const personId = (params.person ?? '').trim()
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -51,30 +51,27 @@ export default async function MessagesPage({
   const byId = new Map(people.map(p => [p.id, p]))
   const companyName = (p: Profile) => companies.find(c => c.id === p.company_id)?.name ?? null
 
-  // Every directory founder this person has written to, plus the one they are
+  // Everyone in the directory this person has written to, plus the one they are
   // opening right now even if nothing has been sent yet.
-  const founderIds = Array.from(new Set([
-    ...messages.map(m => m.recipient_founder_id).filter((v): v is string => !!v),
-    ...(founderId ? [founderId] : []),
+  const personIds = Array.from(new Set([
+    ...messages.map(m => m.recipient_person_id).filter((v): v is string => !!v),
+    ...(personId ? [personId] : []),
   ]))
 
-  const { data: founderRows } = founderIds.length
-    ? await supabase.from('directory_founders').select('*').in('id', founderIds)
+  const { data: personRows } = personIds.length
+    ? await supabase.from('people').select('*').in('id', personIds)
     : { data: [] }
-  const founders = (founderRows ?? []) as DirectoryFounder[]
+  const directory = (personRows ?? []) as Person[]
 
-  const { data: founderCoRows } = founders.length
-    ? await supabase.from('directory_companies').select('id, name, batch')
-        .in('id', Array.from(new Set(founders.map(f => f.company_id))))
-    : { data: [] }
-  const founderCompanies = new Map(
-    ((founderCoRows ?? []) as Pick<DirectoryCompany, 'id' | 'name' | 'batch'>[])
-      .map(c => [c.id, c])
-  )
+  // A message sent to your own directory entry, before you held an account, is
+  // a message to you — it belongs in the thread with whoever sent it.
+  const mine = new Set(directory.filter(d => d.profile_id === user.id).map(d => d.id))
+  const toMe = (m: Message) =>
+    m.recipient_id === user.id || (m.recipient_person_id != null && mine.has(m.recipient_person_id))
 
-  const personThreads: Thread[] = people.filter(p => p.id !== user.id).map(p => {
+  const accountThreads: Thread[] = people.filter(p => p.id !== user.id).map(p => {
     const items = messages.filter(
-      m => (m.sender_id === p.id && m.recipient_id === user.id)
+      m => (m.sender_id === p.id && toMe(m))
         || (m.sender_id === user.id && m.recipient_id === p.id)
     )
     return {
@@ -84,46 +81,45 @@ export default async function MessagesPage({
       sub: [p.title, companyName(p)].filter(Boolean).join(' · ') || null,
       items,
       last: items[items.length - 1] ?? null,
-      unread: items.filter(m => m.recipient_id === user.id && !m.read_at).length,
+      unread: items.filter(m => toMe(m) && !m.read_at).length,
       profileId: p.id,
-      founder: null,
+      person: null,
       linkedin: null,
     }
   })
 
-  const founderThreads: Thread[] = founders.map(f => {
-    const items = messages.filter(m => m.recipient_founder_id === f.id)
-    const co = founderCompanies.get(f.company_id)
+  const directoryThreads: Thread[] = directory.filter(d => !mine.has(d.id)).map(d => {
+    const items = messages.filter(m => m.recipient_person_id === d.id)
+    const batch = d.batches[0] ? ` (${d.batches[0]})` : ''
     return {
-      key: `f:${f.id}`,
-      href: `/messages?founder=${f.id}`,
-      name: f.name,
-      sub: [f.title, co ? `${co.name}${co.batch ? ` (${co.batch})` : ''}` : null]
-        .filter(Boolean).join(' · ') || null,
+      key: `d:${d.id}`,
+      href: `/messages?person=${d.id}`,
+      name: d.name,
+      sub: [d.role_title, d.org ? `${d.org}${batch}` : null].filter(Boolean).join(' · ') || null,
       items,
       last: items[items.length - 1] ?? null,
       unread: 0,
       profileId: null,
-      founder: f,
-      linkedin: f.linkedin_url,
+      person: d,
+      linkedin: d.linkedin_url,
     }
   })
 
-  const threads = [...personThreads, ...founderThreads].sort((a, b) => {
+  const threads = [...accountThreads, ...directoryThreads].sort((a, b) => {
     if (a.last && b.last) return a.last.created_at < b.last.created_at ? 1 : -1
     if (a.last) return -1
     if (b.last) return 1
     return a.name.localeCompare(b.name)
   })
 
-  const open = founderId
-    ? threads.find(t => t.founder?.id === founderId) ?? null
+  const open = personId
+    ? threads.find(t => t.person?.id === personId) ?? null
     : withId
       ? threads.find(t => t.profileId === withId) ?? null
       : null
 
   const unreadIds = open
-    ? open.items.filter(m => m.recipient_id === user.id && !m.read_at).map(m => m.id)
+    ? open.items.filter(m => toMe(m) && !m.read_at).map(m => m.id)
     : []
 
   return (
@@ -206,7 +202,7 @@ export default async function MessagesPage({
 
               <Composer
                 recipientId={open.profileId ?? undefined}
-                recipientFounderId={open.founder?.id}
+                recipientPersonId={open.person?.id}
                 recipientName={open.name}
               />
             </>

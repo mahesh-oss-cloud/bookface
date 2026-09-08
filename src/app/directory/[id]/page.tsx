@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import Chrome from '@/components/Chrome'
 import MessageLink from '@/components/MessageLink'
 import type { Profile, DirectoryCompany, DirectoryFounder } from '@/lib/types'
-import { matchAccount, initials } from '@/lib/people'
+import { matchAccount, initials, personKey } from '@/lib/people'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,6 +31,17 @@ export default async function CompanyProfilePage({
 
   const founders = (foundersRes.data ?? []) as DirectoryFounder[]
   const people = (peopleRes.data ?? []) as Profile[]
+
+  // Each founder has one page across every company they founded, so the name
+  // here links to that rather than repeating the person on each listing.
+  const { data: personRows } = founders.length
+    ? await supabase.from('people').select('id, person_key')
+        .in('person_key', founders.map(f => personKey(f.name)))
+    : { data: [] }
+  const personPages = new Map(
+    ((personRows ?? []) as { id: string; person_key: string }[])
+      .map(r => [r.person_key, r.id])
+  )
 
   // Companies in the same batch — the reason to be in here rather than on a
   // public listing is that the batch around you is one click away.
@@ -125,7 +136,11 @@ export default async function CompanyProfilePage({
                     : <span className="co-face" aria-hidden="true">{initials(f.name)}</span>}
                   <div style={{ minWidth: 0, flex: 1 }}>
                     <div className="co-fname">
-                      {f.name}
+                      {/* Inward again: a founder's name opens their page here,
+                          not a profile on somebody else's site. */}
+                      {personPages.get(personKey(f.name))
+                        ? <Link href={`/people/${personPages.get(personKey(f.name))}`}>{f.name}</Link>
+                        : f.name}
                       {isYou && <span className="tag">you</span>}
                     </div>
                     {f.title && <div className="co-ftitle">{f.title}</div>}
@@ -138,7 +153,7 @@ export default async function CompanyProfilePage({
                   {!isYou && (
                     accountId
                       ? <MessageLink to={accountId} name={f.name} label />
-                      : <MessageLink founder={f.id} name={f.name} label />
+                      : <MessageLink person={personPages.get(personKey(f.name))} name={f.name} label />
                   )}
                 </div>
               )

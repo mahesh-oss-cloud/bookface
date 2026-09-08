@@ -33,22 +33,6 @@ export function ago(iso: string): string {
   return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
-/** PostgREST treats commas and parens as syntax inside a filter. */
-export function safeLike(v: string): string {
-  return v.replace(/[,()*\\]/g, ' ').trim()
-}
-
-/**
- * Search on words rather than one contiguous string. "pricing per seat" should
- * find a thread titled "per-seat…" that was tagged pricing; matching the phrase
- * literally finds nothing, which is the difference between an archive that
- * answers you and one that looks empty.
- *
- * Each term becomes its own ilike, and PostgREST ANDs them, so every word has
- * to appear somewhere in the question or its replies.
- */
-export function searchTerms(q: string): string[] {
-  return Array.from(new Set(
-    safeLike(q).toLowerCase().split(/[\s/|:;'"?!.]+/).filter(w => w.length >= 2)
-  )).slice(0, 6)
-}
+// Word-based matching is now shared with the people directory, so it lives on
+// its own. Re-exported here for the forum pages that already import it.
+export { safeLike, searchTerms } from './search'
