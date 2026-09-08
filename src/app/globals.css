@@ -26,6 +26,10 @@
   --crit: #c62828;
 
   --ui: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  /* Titles and section headings only. Y Combinator sets its display type in a
+     sharp editorial serif and its running text in a plain sans; this keeps that
+     split rather than putting a serif through a dense table. */
+  --display: "Instrument Serif", "Iowan Old Style", Georgia, "Times New Roman", serif;
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 
@@ -56,7 +60,10 @@ a:hover { text-decoration: underline; }
 }
 /* The mark is the Y Combinator logo asset, since this is a Bookface concept. */
 .mark { width: 22px; height: 22px; border-radius: 2px; flex: none; display: block; }
-.wordmark { font-weight: bold; font-size: 15px; letter-spacing: -0.4px; color: var(--ink); margin-right: 6px; }
+.wordmark {
+  font-family: var(--display); font-weight: 400; font-size: 21px;
+  letter-spacing: -0.01em; line-height: 1; color: var(--ink); margin-right: 6px;
+}
 /* The YC name in text, next to the product name, so the reference is explicit
    and not carried by the logo alone. */
 .yctag {
@@ -90,7 +97,15 @@ a:hover { text-decoration: underline; }
   padding: 7px 12px; border-bottom: 1px solid var(--rule); background: var(--panel-2);
   display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
 }
-.block-hd h2 { margin: 0; font-size: 12px; font-weight: bold; letter-spacing: 0.02em; }
+/* Italic serif, the way YC sets a section heading. Bumped a little because a
+   serif at 12px in a dense panel is a smudge rather than a heading. */
+.block-hd h2 {
+  margin: 0; font-family: var(--display); font-style: italic; font-weight: 400;
+  font-size: 15px; letter-spacing: 0; line-height: 1.2;
+}
+.block-hd h2 .convo-sub, .block-hd h2 .batchtag, .block-hd h2 .tag {
+  font-family: var(--ui); font-style: normal;
+}
 .block-hd .aside { font-size: 11px; color: var(--meta); }
 .pad { padding: 12px; }
 .eyebrow { font-size: 10px; text-transform: uppercase; letter-spacing: 0.09em; color: var(--meta); font-weight: bold; }
@@ -98,7 +113,10 @@ a:hover { text-decoration: underline; }
 
 /* ── empty states ───────────────────────────────────────── */
 .empty { padding: 26px 14px; text-align: center; color: var(--meta); font-size: 12px; }
-.empty strong { display: block; color: var(--ink-2); font-size: 13px; margin-bottom: 4px; }
+.empty strong {
+  display: block; color: var(--ink-2); margin-bottom: 4px;
+  font-family: var(--display); font-weight: 400; font-size: 17px; line-height: 1.25;
+}
 .empty p { margin: 0 auto; max-width: 46ch; line-height: 1.6; }
 
 /* ── tags ───────────────────────────────────────────────── */
@@ -186,7 +204,7 @@ input[type="number"] { font-family: var(--mono); font-variant-numeric: tabular-n
 .login { min-height: 82vh; display: grid; place-items: center; padding: 40px 16px; }
 .login-card { width: 100%; max-width: 340px; }
 .login-hd { display: flex; align-items: center; gap: 9px; margin-bottom: 20px; }
-.login-hd .wordmark { font-size: 19px; margin: 0; }
+.login-hd .wordmark { font-size: 27px; margin: 0; }
 .login .btn-p { width: 100%; padding: 7px; margin-top: 4px; }
 .login-note {
   font-size: 11px; color: var(--meta); margin-top: 14px; padding-top: 12px;
@@ -278,7 +296,10 @@ input[type="number"] { font-family: var(--mono); font-variant-numeric: tabular-n
    product with a company inside it, not the company's own site. */
 .co-hd { display: flex; gap: 14px; padding: 14px 12px; align-items: flex-start; }
 .co-logo { flex: none; border-radius: 2px; border: 1px solid var(--rule); object-fit: contain; }
-.co-name { font-size: 19px; margin: 0 0 3px; letter-spacing: -0.01em; }
+.co-name {
+  font-family: var(--display); font-weight: 400; font-size: 24px;
+  margin: 0 0 3px; letter-spacing: -0.01em; line-height: 1.15;
+}
 .co-line { font-size: 13px; color: var(--ink-2); margin: 0 0 6px; line-height: 1.5; }
 .co-meta { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center;
            font-size: 11px; color: var(--meta); }
@@ -370,9 +391,10 @@ input[type="number"] { font-family: var(--mono); font-variant-numeric: tabular-n
   font-size: 24px; font-weight: bold; color: var(--ink-2); padding: 0;
 }
 .co-title {
-  margin: 0; font-size: 20px; line-height: 1.25; font-weight: bold;
-  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin: 0; font-family: var(--display); font-weight: 400; font-size: 26px;
+  line-height: 1.2; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
 }
+.co-title .kindpill, .co-title .tag, .co-title .batchtag { font-family: var(--ui); }
 .co-liner { margin: 5px 0 0; font-size: 13.5px; color: var(--ink-2); line-height: 1.55; max-width: 62ch; }
 
 .co-founder {
@@ -588,7 +610,7 @@ a.topictag:hover { text-decoration: none; background: var(--orange-line); }
   .nav { display: none; }
   .me-name { display: none; }
   .me { margin-left: auto; }
-  .wordmark { font-size: 15px; }
+  .wordmark { font-size: 19px; }
 
   .tabbar {
     display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;

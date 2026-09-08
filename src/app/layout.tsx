@@ -36,13 +36,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <head>
         {/* Loaded at runtime, not build time, so the Render build cannot fail on
-            an egress-blocked font fetch. Manrope is a free stand-in for YC's
-            proprietary Macan — the same clean, semi-geometric marketing look. */}
+            an egress-blocked font fetch. Y Combinator sets its brand in Macan
+            and a high-contrast editorial serif, neither of which is ours to
+            embed; Manrope and Instrument Serif are the closest free pair, and
+            carry the same voice — a plain semi-geometric sans under a sharp
+            serif with a proper italic. */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap"
         />
       </head>
       <body>
