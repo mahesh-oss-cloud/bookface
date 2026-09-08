@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import Chrome from '@/components/Chrome'
 import MessageLink from '@/components/MessageLink'
 import type { Profile, DirectoryCompany, DirectoryFounder } from '@/lib/types'
-import { matchAccount, initials, personKey } from '@/lib/people'
+import { matchAccount, initials } from '@/lib/people'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,15 +33,16 @@ export default async function CompanyProfilePage({
   const people = (peopleRes.data ?? []) as Profile[]
 
   // Each founder has one page across every company they founded, so the name
-  // here links to that rather than repeating the person on each listing.
+  // here links to that rather than repeating the person on each listing. The
+  // link is by row id, not by name: two people can share a name.
   const { data: personRows } = founders.length
-    ? await supabase.from('people').select('id, person_key')
-        .in('person_key', founders.map(f => personKey(f.name)))
+    ? await supabase.from('people').select('id, founder_ids')
+        .overlaps('founder_ids', founders.map(f => f.id))
     : { data: [] }
-  const personPages = new Map(
-    ((personRows ?? []) as { id: string; person_key: string }[])
-      .map(r => [r.person_key, r.id])
-  )
+  const personPages = new Map<string, string>()
+  for (const r of (personRows ?? []) as { id: string; founder_ids: string[] }[]) {
+    for (const fid of r.founder_ids) personPages.set(fid, r.id)
+  }
 
   // Companies in the same batch — the reason to be in here rather than on a
   // public listing is that the batch around you is one click away.
@@ -138,8 +139,8 @@ export default async function CompanyProfilePage({
                     <div className="co-fname">
                       {/* Inward again: a founder's name opens their page here,
                           not a profile on somebody else's site. */}
-                      {personPages.get(personKey(f.name))
-                        ? <Link href={`/people/${personPages.get(personKey(f.name))}`}>{f.name}</Link>
+                      {personPages.get(f.id)
+                        ? <Link href={`/people/${personPages.get(f.id)}`}>{f.name}</Link>
                         : f.name}
                       {isYou && <span className="tag">you</span>}
                     </div>
@@ -153,7 +154,7 @@ export default async function CompanyProfilePage({
                   {!isYou && (
                     accountId
                       ? <MessageLink to={accountId} name={f.name} label />
-                      : <MessageLink person={personPages.get(personKey(f.name))} name={f.name} label />
+                      : <MessageLink person={personPages.get(f.id)} name={f.name} label />
                   )}
                 </div>
               )

@@ -4,16 +4,10 @@ export function initials(name: string): string {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0]).join('').toUpperCase()
 }
 
-/**
- * Names arrive from a CSV typed by a human, so match on letters only. This is
- * the same key the people directory is built on, so the two always agree about
- * who is who.
- */
-export function personKey(name: string): string {
+/** Names arrive from a CSV typed by a human, so match on letters only. */
+function key(name: string): string {
   return name.toLowerCase().replace(/[^a-z]/g, '')
 }
-
-const key = personKey
 
 /**
  * A founder listed in the directory is only messageable if that same person

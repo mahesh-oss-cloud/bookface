@@ -4,7 +4,7 @@ import Chrome from '@/components/Chrome'
 import MessageLink from '@/components/MessageLink'
 import ImportCsv from './ImportCsv'
 import type { Profile, DirectoryCompany, DirectoryFounder, BatchFacet, NameFacet } from '@/lib/types'
-import { matchAccount, initials, personKey } from '@/lib/people'
+import { matchAccount, initials } from '@/lib/people'
 
 export const dynamic = 'force-dynamic'
 
@@ -77,15 +77,16 @@ export default async function DirectoryPage({
 
   // One row per person in the directory, so the envelope on a founder's name
   // opens a thread with the person rather than with a line on a company page.
+  // Matched by row id rather than by name, because two people can share a name.
   const founderRowList = (founderRows ?? []) as DirectoryFounder[]
   const { data: personRows } = founderRowList.length
-    ? await supabase.from('people').select('id, person_key, profile_id')
-        .in('person_key', founderRowList.map(f => personKey(f.name)))
+    ? await supabase.from('people').select('id, founder_ids, profile_id')
+        .overlaps('founder_ids', founderRowList.map(f => f.id))
     : { data: [] }
-  const personByKey = new Map(
-    ((personRows ?? []) as { id: string; person_key: string; profile_id: string | null }[])
-      .map(r => [r.person_key, r])
-  )
+  const personByFounder = new Map<string, { id: string; profile_id: string | null }>()
+  for (const r of (personRows ?? []) as { id: string; founder_ids: string[]; profile_id: string | null }[]) {
+    for (const fid of r.founder_ids) personByFounder.set(fid, { id: r.id, profile_id: r.profile_id })
+  }
 
   const foundersByCompany = new Map<string, DirectoryFounder[]>()
   for (const f of founderRowList) {
@@ -239,7 +240,7 @@ export default async function DirectoryPage({
                             {founders.map(f => {
                               // profile_id is the authoritative link once a founder
                               // holds an account; the name match is the fallback.
-                              const entry = personByKey.get(personKey(f.name))
+                              const entry = personByFounder.get(f.id)
                               const accountId = f.profile_id ?? entry?.profile_id
                                 ?? matchAccount(f.name, people)?.id ?? null
                               return (

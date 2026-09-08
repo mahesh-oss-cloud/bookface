@@ -193,6 +193,8 @@ export interface Person {
   source: 'directory' | 'public'
   source_url: string | null
   batches: string[]
+  /** The directory_founders rows this person is made of. Identity without names. */
+  founder_ids: string[]
   companies: PersonCompany[]
   /** Read off what their companies do. A fact about the companies, not a claim. */
   works_on: string[]
