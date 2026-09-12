@@ -180,6 +180,10 @@ export interface Person {
   person_key: string
   name: string
   kind: PersonKind
+  /** Every kind this person is, the primary one first. Someone can be two
+      things at once — a founder who also invests — and the filter reads this
+      rather than kind, so being one does not hide the other. */
+  kinds: PersonKind[]
   /** Set for partners and investors: what they are known for in their own right. */
   known_for: string | null
   org: string | null

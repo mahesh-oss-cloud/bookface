@@ -1,4 +1,19 @@
-import type { Profile } from './types'
+import type { PersonKind, Profile } from './types'
+
+export const KIND_LABEL: Record<PersonKind, string> = {
+  founder: 'Founder',
+  investor: 'Investor',
+  partner: 'Partner',
+}
+
+/**
+ * Which kinds earn a pill beside a name. In a directory of ten thousand
+ * founders, Founder on every row says nothing; it only becomes worth reading
+ * when the person is something else as well, and then it belongs there.
+ */
+export function shownKinds(kinds: PersonKind[]): PersonKind[] {
+  return kinds.length === 1 && kinds[0] === 'founder' ? [] : kinds
+}
 
 export function initials(name: string): string {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0]).join('').toUpperCase()

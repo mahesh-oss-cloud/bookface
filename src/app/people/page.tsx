@@ -6,7 +6,7 @@ import MessageLink from '@/components/MessageLink'
 import type {
   Person, TagFacet, KindFacet, PeopleBatchFacet, BatchFacet,
 } from '@/lib/types'
-import { initials } from '@/lib/people'
+import { initials, shownKinds } from '@/lib/people'
 import { searchTerms } from '@/lib/search'
 
 export const dynamic = 'force-dynamic'
@@ -48,7 +48,9 @@ export default async function PeoplePage({
   // Each word its own ilike, ANDed by PostgREST: "algolia search" finds the
   // person whose company is Algolia and whose tags say Search.
   for (const term of searchTerms(q)) query = query.ilike('search_text', `%${term}%`)
-  if (kind) query = query.eq('kind', kind)
+  // A person can be two things, so the filter asks whether the kind is in
+  // their set rather than whether it is the one they are filed under.
+  if (kind) query = query.contains('kinds', [kind])
   if (tag) query = query.contains('tags', [tag])
   if (batch) query = query.contains('batches', [batch])
   if (here) query = query.eq('account_state', 'active')
@@ -211,7 +213,9 @@ export default async function PeoplePage({
                       <div className="pr-main">
                         <h3 className="pr-name">
                           <Link href={`/people/${p.id}`}>{p.name}</Link>
-                          {p.kind !== 'founder' && <span className="kindpill">{p.kind}</span>}
+                          {shownKinds(p.kinds).map((k, i) => (
+                            <span className={i === 0 ? 'kindpill' : 'kindpill kindpill-2'} key={k}>{k}</span>
+                          ))}
                           {isYou && <span className="tag">you</span>}
                           {/* Everyone in here is a member; what varies is whether
                               their sign-in has been set up yet. */}

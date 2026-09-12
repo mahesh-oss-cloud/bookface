@@ -275,6 +275,9 @@ input[type="number"] { font-family: var(--mono); font-variant-numeric: tabular-n
   font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: bold;
   color: #fff; background: var(--orange); padding: 3px 7px; border-radius: 4px;
 }
+/* A second kind qualifies the first rather than competing with it, so it keeps
+   the shape and drops the accent to its wash. */
+.kindpill-2 { color: var(--orange-dim); background: var(--orange-wash); }
 .herepill {
   font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: bold;
   color: #2c6b30; background: #e4efe4; padding: 3px 7px; border-radius: 4px;

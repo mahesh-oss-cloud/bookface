@@ -5,15 +5,9 @@ import Chrome from '@/components/Chrome'
 import MessageLink from '@/components/MessageLink'
 import Expertise from '../Expertise'
 import type { Person, TagFacet } from '@/lib/types'
-import { initials } from '@/lib/people'
+import { initials, shownKinds, KIND_LABEL } from '@/lib/people'
 
 export const dynamic = 'force-dynamic'
-
-const KIND_LABEL: Record<string, string> = {
-  founder: 'Founder',
-  investor: 'Investor',
-  partner: 'Partner',
-}
 
 export default async function PersonPage({
   params,
@@ -68,7 +62,9 @@ export default async function PersonPage({
               <div style={{ minWidth: 0, flex: 1 }}>
                 <h1 className="co-title">
                   {p.name}
-                  {p.kind !== 'founder' && <span className="kindpill">{KIND_LABEL[p.kind]}</span>}
+                  {shownKinds(p.kinds).map((k, i) => (
+                    <span className={i === 0 ? 'kindpill' : 'kindpill kindpill-2'} key={k}>{KIND_LABEL[k]}</span>
+                  ))}
                   {isYou && <span className="tag">you</span>}
                 </h1>
                 <p className="co-liner">
